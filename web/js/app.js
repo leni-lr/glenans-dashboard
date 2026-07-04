@@ -2,6 +2,7 @@ import { loadSettings, saveSetting } from "./settings.js";
 import { initTheme, applyTheme, THEME_PREFS } from "./theme.js";
 import { t } from "./i18n.js";
 import { skeletonHTML, mountCard } from "./card.js";
+import { mountForecastCard } from "./cards/forecast.js";
 
 // Source links used by each card's title / footer credits and later fallbacks.
 const SOURCES = {
@@ -13,6 +14,7 @@ const SOURCES = {
 };
 
 const state = { settings: loadSettings() };
+let forecastCard = null;
 
 function formatDateTime(lang, date = new Date()) {
   // e.g. "ven. 3 juil. · 07:12"
@@ -39,7 +41,6 @@ function cardTitleRow(lang, key, extra = "") {
 // Mount every card with a titled skeleton; later phases replace these bodies.
 function renderSkeletons() {
   const { lang } = state.settings;
-  mountCard("card-forecast", cardTitleRow(lang, "forecast_title") + skeletonHTML(1, true));
   mountCard("card-livewind", cardTitleRow(lang, "livewind_title") + skeletonHTML(2));
   mountCard("card-tide",     cardTitleRow(lang, "tide_title")     + skeletonHTML(1, true));
   mountCard("card-bulletin", cardTitleRow(lang, "bulletin_title") + skeletonHTML(3));
@@ -64,6 +65,7 @@ function cardKeyToTitle(k) {
 function renderAll() {
   renderHeader();
   renderSkeletons();
+  forecastCard = mountForecastCard(state.settings);
   renderFooter();
 }
 
@@ -84,8 +86,11 @@ function wireEvents() {
     applyTheme(next);
   });
 
-  // Manual refresh: for now just re-stamp the clock + re-mount skeletons.
-  document.getElementById("btn-refresh").addEventListener("click", renderAll);
+  // Manual refresh: re-stamp the header and refresh card data.
+  document.getElementById("btn-refresh").addEventListener("click", () => {
+    renderHeader();
+    if (forecastCard) forecastCard.refresh();
+  });
 }
 
 function start() {

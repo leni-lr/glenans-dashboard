@@ -22,6 +22,9 @@ export const DICT = {
                       en: "Source unavailable — open on the site ↗" },
   refresh:          { fr: "Rafraîchir",            en: "Refresh" },
   settings:         { fr: "Réglages",              en: "Settings" },
+  legend_mean: { fr: "vent",       en: "wind" },
+  legend_gust: { fr: "rafales",    en: "gusts" },
+  legend_now:  { fr: "maintenant", en: "now" },
 };
 
 export function t(lang, key) {
