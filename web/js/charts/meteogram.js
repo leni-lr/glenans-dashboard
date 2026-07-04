@@ -23,3 +23,83 @@ export function tooltipAt(data, i) {
     cardinal: degToCardinal(data.dir[i]),
   };
 }
+
+// Inline-SVG meteogram. Colours/dashes are supplied by CSS classes (see
+// meteogram.css); this function emits geometry + classes only.
+export function meteogram(data, opts = {}) {
+  const W = opts.width ?? 300, H = opts.height ?? 118;
+  const L = 26, R = 8, B = 34, TOP = 10;
+  const { times, speed, gust, dir } = data;
+  const N = times.length;
+  const ym = computeYMax(gust);
+  const plotW = W - L - R, plotH = H - B - TOP;
+  const baseY = H - B;
+  const x = (i) => L + (N <= 1 ? 0 : (i * plotW) / (N - 1));
+  const y = (v) => TOP + plotH * (1 - v / ym);
+  const f = (n) => n.toFixed(1);
+
+  let line = `M${f(x(0))} ${f(y(speed[0]))}`;
+  for (let i = 1; i < N; i++) line += ` L${f(x(i))} ${f(y(speed[i]))}`;
+  const area = `${line} L${f(x(N - 1))} ${baseY} L${f(x(0))} ${baseY} Z`;
+
+  let gustP = `M${f(x(0))} ${f(y(gust[0]))}`;
+  for (let i = 1; i < N; i++) gustP += ` L${f(x(i))} ${f(y(gust[i]))}`;
+
+  let s = `<svg viewBox="0 0 ${W} ${H}" width="100%" role="img" ` +
+    `aria-label="${opts.ariaLabel ?? "Prévision de vent"}" ` +
+    `xmlns="http://www.w3.org/2000/svg" style="display:block">`;
+
+  for (const v of [10, 20, 30]) {
+    if (v > ym) continue;
+    s += `<line class="mg-grid" x1="${L}" y1="${f(y(v))}" x2="${W - R}" y2="${f(y(v))}"/>`;
+    s += `<text class="mg-axis" x="${L - 4}" y="${f(y(v) + 4)}" text-anchor="end">${v}</text>`;
+  }
+
+  s += `<path class="mg-area" d="${area}"/>`;
+  s += `<path class="mg-line" d="${line}"/>`;
+  s += `<path class="mg-gust" d="${gustP}"/>`;
+
+  if (opts.compare && Array.isArray(opts.compare.speed) && opts.compare.speed.length) {
+    const cs = opts.compare.speed, cn = cs.length;
+    const cx = (i) => L + (cn <= 1 ? 0 : (i * plotW) / (cn - 1));
+    let cp = `M${f(cx(0))} ${f(y(cs[0]))}`;
+    for (let i = 1; i < cn; i++) cp += ` L${f(cx(i))} ${f(y(cs[i]))}`;
+    s += `<path class="mg-compare" d="${cp}"/>`;
+  }
+
+  if (opts.nowTime != null) {
+    const now = new Date(opts.nowTime).getTime();
+    const t0 = new Date(times[0]).getTime();
+    const tN = new Date(times[N - 1]).getTime();
+    if (!Number.isNaN(now) && tN > t0) {
+      const frac = (now - t0) / (tN - t0);
+      if (frac >= 0 && frac <= 1) {
+        const xn = L + frac * plotW;
+        s += `<line class="mg-now" x1="${f(xn)}" y1="${TOP}" x2="${f(xn)}" y2="${baseY + 2}"/>`;
+      }
+    }
+  }
+
+  const arrowStep = Math.max(1, Math.round(N / 12));
+  for (let i = 0; i < N; i += arrowStep) {
+    const rot = (((dir[i] ?? 0) + 180) % 360);
+    s += `<g class="mg-arrow" transform="translate(${f(x(i))},${H - 22}) rotate(${rot})">` +
+      `<path d="M0 -5 L3.4 4 L0 2 L-3.4 4 Z"/></g>`;
+  }
+
+  const is7d = opts.range === "7d";
+  for (let i = 0; i < N; i++) {
+    const hh = Number(times[i].slice(11, 13));
+    if (is7d) {
+      if (hh === 0) {
+        const wd = new Date(times[i]).toLocaleDateString(
+          opts.lang === "en" ? "en-GB" : "fr-FR", { weekday: "short" });
+        s += `<text class="mg-axis" x="${f(x(i))}" y="${H - 3}" text-anchor="middle">${wd}</text>`;
+      }
+    } else if (hh % 6 === 0) {
+      s += `<text class="mg-axis" x="${f(x(i))}" y="${H - 3}" text-anchor="middle">${hh}h</text>`;
+    }
+  }
+
+  return s + `</svg>`;
+}
