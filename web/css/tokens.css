@@ -1,0 +1,82 @@
+/* Marine-blue design tokens. All component colours reference these vars;
+   never hardcode hex outside this file. Light on :root, dark overrides below. */
+:root {
+  /* core ramp (theme-independent reference) */
+  --navy-900: #042C53;
+  --navy-800: #0C447C;
+  --navy-600: #185FA5;
+  --blue-400: #378ADD;
+  --blue-200: #85B7EB;
+  --blue-100: #B5D4F4;
+  --blue-50:  #E6F1FB;
+
+  /* semantic tokens — LIGHT ("Classique") */
+  --page-bg: #F4F8FC;
+  --card-bg: #FFFFFF;
+  --card-border: #B5D4F4;
+  --header-bg: #0C447C;
+  --header-title: #E6F1FB;
+  --header-subtitle: #B5D4F4;
+  --text-primary: #042C53;
+  --text-secondary: #185FA5;
+  --text-body: #0C447C;
+  --accent: #378ADD;
+  --gust: #D85A30;
+  --now: #1D9E75;
+  --grid: #E6F1FB;
+  --axis-label: #185FA5;
+  --chip-bg: #E6F1FB;
+  --chip-text: #0C447C;
+  --coef-bg: #E1F5EE;
+  --coef-text: #085041;
+  --bms-none-bg: #EAF3DE;
+  --bms-none-text: #27500A;
+  --alert-bg: #EF9F27;
+  --alert-text: #412402;
+  --danger: #A32D2D;
+
+  /* shape */
+  --radius: 12px;
+  --hairline: #B5D4F4;
+
+  --font: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+}
+
+:root[data-theme="dark"] {
+  --page-bg: #042C53;
+  --card-bg: transparent;         /* dark = hairline-separated sections, no cards */
+  --card-border: transparent;
+  --header-bg: transparent;
+  --header-title: #E6F1FB;
+  --header-subtitle: #85B7EB;
+  --text-primary: #FFFFFF;
+  --text-secondary: #85B7EB;
+  --text-body: #B5D4F4;
+  --accent: #378ADD;
+  --gust: #F0997B;
+  --now: #5DCAA5;
+  --grid: #0C447C;
+  --axis-label: #85B7EB;
+  --chip-bg: #0C447C;
+  --chip-text: #B5D4F4;
+  --coef-bg: #085041;
+  --coef-text: #9FE1CB;
+  --bms-none-bg: #173404;
+  --bms-none-text: #C0DD97;
+  --alert-bg: #EF9F27;            /* alert strip identical in both themes */
+  --alert-text: #412402;
+  --danger: #F09595;
+
+  --hairline: #0C447C;
+}
+
+* { box-sizing: border-box; }
+html, body { margin: 0; }
+body {
+  background: var(--page-bg);
+  color: var(--text-primary);
+  font-family: var(--font);
+  font-size: 14px;
+  font-weight: 400;
+  -webkit-text-size-adjust: 100%;
+}
