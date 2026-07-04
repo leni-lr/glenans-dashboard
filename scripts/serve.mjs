@@ -3,8 +3,9 @@
 import { createServer } from "node:http";
 import { readFile } from "node:fs/promises";
 import { extname, join, normalize } from "node:path";
+import { fileURLToPath } from "node:url";
 
-const ROOT = new URL("../web/", import.meta.url).pathname;
+const ROOT = fileURLToPath(new URL("../web/", import.meta.url));
 const PORT = 5173;
 const TYPES = {
   ".html": "text/html; charset=utf-8",
