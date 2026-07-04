@@ -1,0 +1,61 @@
+.app-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--header-bg);
+}
+.app-header__place { font-size: 15px; font-weight: 500; color: var(--header-title); }
+.app-header__datetime { display: block; font-size: 11px; color: var(--header-subtitle); }
+.app-header__actions { display: flex; align-items: center; gap: 6px; }
+
+.iconbtn, .textbtn {
+  min-width: 40px; min-height: 40px;
+  display: inline-flex; align-items: center; justify-content: center;
+  background: transparent; border: none; cursor: pointer;
+  color: var(--header-subtitle); font-size: 18px; font-family: var(--font);
+}
+.textbtn { font-size: 13px; font-weight: 500; }
+
+.alert-strip {
+  background: var(--alert-bg); color: var(--alert-text);
+  font-size: 12px; font-weight: 500; padding: 8px 14px;
+}
+
+.stack { display: flex; flex-direction: column; gap: 8px; padding: 10px; }
+
+.card {
+  background: var(--card-bg);
+  border: 0.5px solid var(--card-border);
+  border-radius: var(--radius);
+  padding: 10px 12px;
+}
+:root[data-theme="dark"] .card {
+  border: none;
+  border-top: 0.5px solid var(--hairline);
+  border-radius: 0;
+  padding: 8px 4px;
+}
+
+.card__title-row { display: flex; justify-content: space-between; align-items: center; padding-bottom: 6px; }
+.card__title { font-size: 12px; font-weight: 500; color: var(--text-secondary); }
+
+/* skeletons: plain blocks, no spinner, no animation */
+.skeleton { background: var(--grid); border-radius: 6px; }
+.skeleton--line { height: 12px; margin: 6px 0; }
+.skeleton--chart { height: 118px; margin: 4px 0; }
+
+/* per-card failure message */
+.card__error {
+  font-size: 12px; color: var(--text-secondary);
+}
+.card__error a { color: var(--accent); text-decoration: none; }
+
+/* subtle fade-in — the only motion allowed */
+.fade-in { animation: fade 220ms ease-out; }
+@keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .fade-in { animation: none; } }
+
+.footer { padding: 12px 14px; font-size: 11px; color: var(--text-secondary); }
+.footer a { color: var(--accent); text-decoration: none; }
