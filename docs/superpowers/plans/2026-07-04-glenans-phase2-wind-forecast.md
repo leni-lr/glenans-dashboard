@@ -521,14 +521,13 @@ In the `:root[data-theme="dark"]` block, after its `--now:` line, add:
 /* tap tooltip */
 .mg-wrap { position: relative; }
 .mg-tip {
-  position: absolute; pointer-events: none; transform: transl(-50%, -100%);
+  position: absolute; pointer-events: none; transform: translate(-50%, -100%);
   background: var(--card-bg); border: 0.5px solid var(--card-border);
   border-radius: 6px; padding: 4px 6px; font-size: 11px; color: var(--text-primary);
   white-space: nowrap;
 }
 :root[data-theme="dark"] .mg-tip { background: var(--navy-800); border-color: var(--navy-600); }
 ```
-(Note: the `.mg-tip` transform line has a deliberate exact value — use `translate(-50%, -100%)`; correct it to `translate` if reproducing.)
 
 - [ ] **Step 3: Link `meteogram.css` in `web/index.html`**
 
