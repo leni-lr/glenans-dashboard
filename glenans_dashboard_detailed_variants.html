@@ -1,0 +1,184 @@
+<h2 class="sr-only" style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)">Three detailed phone mockups of the sailing dashboard: wind forecast chart, live wind, tide curve, marine bulletin, isobar map</h2>
+<div style="background: var(--surface-1); border-radius: 12px; padding: 16px; display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 18px;">
+
+<div>
+<p style="font-size:13px; color:var(--text-secondary); margin:0 0 8px; font-weight:500;">1 — Classique (navy et blanc)</p>
+<div style="border:0.5px solid var(--border-strong); border-radius:18px; overflow:hidden; background:#F4F8FC;">
+  <div style="background:#0C447C; padding:10px 14px; display:flex; justify-content:space-between; align-items:baseline;">
+    <div><span style="font-size:15px; font-weight:500; color:#E6F1FB;">Penfret · Glénan</span><div style="font-size:11px; color:#B5D4F4;">ven. 3 juil. · 07:12</div></div>
+    <i class="ti ti-refresh" style="color:#85B7EB; font-size:18px;" aria-hidden="true"></i>
+  </div>
+  <div style="padding:10px; display:flex; flex-direction:column; gap:8px;">
+    <div style="background:#fff; border:0.5px solid #B5D4F4; border-radius:12px; padding:10px 8px;">
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:0 4px 6px;">
+        <span style="font-size:12px; color:#185FA5; font-weight:500;">Prévision vent · 24 h</span>
+        <span style="font-size:11px;"><span style="background:#E6F1FB; color:#0C447C; padding:2px 8px; border-radius:9px;">AROME 1.3</span> <span style="color:#378ADD;">+ comparer</span> <span style="color:#378ADD;">7 j</span></span>
+      </div>
+      <div id="wA"></div>
+      <div style="font-size:11px; color:#185FA5; padding:2px 4px 0;"><span style="color:#0C447C;">━</span> vent&nbsp;&nbsp;<span style="color:#D85A30;">┄</span> rafales&nbsp;&nbsp;<span style="color:#1D9E75;">│</span> maintenant</div>
+    </div>
+    <div style="background:#fff; border:0.5px solid #B5D4F4; border-radius:12px; padding:10px 12px; display:flex; justify-content:space-between; align-items:center;">
+      <div><div style="font-size:11px; color:#185FA5;">Vent actuel · Drénec</div>
+      <div style="font-size:28px; font-weight:500; color:#042C53; line-height:1.2;">12 <span style="font-size:14px;">kn</span> <span style="font-size:16px; color:#D85A30;">raf. 18</span></div>
+      <div style="font-size:11px; color:#185FA5;">mis à jour il y a 3 min</div></div>
+      <div style="text-align:center; color:#0C447C;"><i class="ti ti-arrow-right" style="font-size:26px;" aria-hidden="true"></i><div style="font-size:12px; font-weight:500;">W · 270°</div></div>
+    </div>
+    <div style="background:#fff; border:0.5px solid #B5D4F4; border-radius:12px; padding:10px 8px;">
+      <div style="display:flex; justify-content:space-between; padding:0 4px 4px;">
+        <span style="font-size:12px; color:#185FA5; font-weight:500;">Marée · Concarneau</span>
+        <span style="font-size:11px; background:#E1F5EE; color:#085041; padding:2px 8px; border-radius:9px;">coef 87</span>
+      </div>
+      <div id="tA"></div>
+    </div>
+    <div style="background:#fff; border:0.5px solid #B5D4F4; border-radius:12px; padding:10px 12px;">
+      <div style="display:flex; justify-content:space-between; padding-bottom:4px;">
+        <span style="font-size:12px; color:#185FA5; font-weight:500;">Situation générale</span>
+        <span style="font-size:11px; background:#EAF3DE; color:#27500A; padding:2px 8px; border-radius:9px;">BMS : aucun</span>
+      </div>
+      <p style="font-size:12px; color:#0C447C; margin:0; line-height:1.5;">Dorsale anticyclonique s'établissant sur le proche Atlantique. Vent d'ouest 4 à 5 mollissant 3 en soirée, mer peu agitée…</p>
+    </div>
+    <div style="background:#fff; border:0.5px solid #B5D4F4; border-radius:12px; padding:10px 8px;">
+      <div style="font-size:12px; color:#185FA5; font-weight:500; padding:0 4px 4px;">Isobares · Met Office</div>
+      <div id="iA"></div>
+      <div style="text-align:center; font-size:12px; color:#0C447C; padding-top:4px;">◀ &nbsp;analyse T+0 · ven 06h&nbsp; ▶</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div>
+<p style="font-size:13px; color:var(--text-secondary); margin:0 0 8px; font-weight:500;">2 — Nuit (pont sombre)</p>
+<div style="border:0.5px solid var(--border-strong); border-radius:18px; overflow:hidden; background:#042C53;">
+  <div style="padding:12px 14px 6px; display:flex; justify-content:space-between; align-items:baseline;">
+    <div><span style="font-size:15px; font-weight:500; color:#E6F1FB;">Penfret · Glénan</span><div style="font-size:11px; color:#85B7EB;">ven. 3 juil. · 07:12</div></div>
+    <i class="ti ti-refresh" style="color:#85B7EB; font-size:18px;" aria-hidden="true"></i>
+  </div>
+  <div style="padding:6px 10px 12px; display:flex; flex-direction:column; gap:6px;">
+    <div style="border-top:0.5px solid #0C447C; padding:8px 2px 0;">
+      <div style="display:flex; justify-content:space-between; align-items:center; padding:0 2px 6px;">
+        <span style="font-size:12px; color:#85B7EB; font-weight:500;">Prévision vent · 24 h</span>
+        <span style="font-size:11px;"><span style="background:#0C447C; color:#B5D4F4; padding:2px 8px; border-radius:9px;">AROME 1.3</span> <span style="color:#378ADD;">+ comparer</span></span>
+      </div>
+      <div id="wB"></div>
+    </div>
+    <div style="border-top:0.5px solid #0C447C; padding:8px 4px; display:flex; justify-content:space-between; align-items:center;">
+      <div><div style="font-size:11px; color:#85B7EB;">Vent actuel · Drénec</div>
+      <div style="font-size:30px; font-weight:500; color:#fff; line-height:1.2;">12 <span style="font-size:14px; color:#85B7EB;">kn</span> <span style="font-size:16px; color:#F0997B;">raf. 18</span></div>
+      <div style="font-size:11px; color:#85B7EB;">il y a 3 min</div></div>
+      <div style="text-align:center; color:#9FE1CB;"><i class="ti ti-arrow-right" style="font-size:26px;" aria-hidden="true"></i><div style="font-size:12px; font-weight:500;">W · 270°</div></div>
+    </div>
+    <div style="border-top:0.5px solid #0C447C; padding:8px 2px 0;">
+      <div style="display:flex; justify-content:space-between; padding:0 2px 4px;">
+        <span style="font-size:12px; color:#85B7EB; font-weight:500;">Marée · Concarneau</span>
+        <span style="font-size:11px; background:#085041; color:#9FE1CB; padding:2px 8px; border-radius:9px;">coef 87</span>
+      </div>
+      <div id="tB"></div>
+    </div>
+    <div style="border-top:0.5px solid #0C447C; padding:8px 4px;">
+      <div style="display:flex; justify-content:space-between; padding-bottom:4px;">
+        <span style="font-size:12px; color:#85B7EB; font-weight:500;">Situation générale</span>
+        <span style="font-size:11px; background:#173404; color:#C0DD97; padding:2px 8px; border-radius:9px;">BMS : aucun</span>
+      </div>
+      <p style="font-size:12px; color:#B5D4F4; margin:0; line-height:1.5;">Dorsale anticyclonique s'établissant. Vent d'ouest 4 à 5 mollissant 3 en soirée, mer peu agitée…</p>
+    </div>
+    <div style="border-top:0.5px solid #0C447C; padding:8px 2px 0;">
+      <div style="font-size:12px; color:#85B7EB; font-weight:500; padding:0 2px 4px;">Isobares · Met Office</div>
+      <div id="iB"></div>
+      <div style="text-align:center; font-size:12px; color:#B5D4F4; padding:4px 0 2px;">◀ &nbsp;T+0 · ven 06h&nbsp; ▶</div>
+    </div>
+  </div>
+</div>
+</div>
+
+<div>
+<p style="font-size:13px; color:var(--text-secondary); margin:0 0 8px; font-weight:500;">3 — Briefing dense (utilitaire)</p>
+<div style="border:2px solid #0C447C; border-radius:12px; overflow:hidden; background:#fff;">
+  <div style="border-bottom:2px solid #0C447C; padding:8px 12px; display:flex; justify-content:space-between; align-items:baseline;">
+    <span style="font-size:14px; font-weight:500; color:#042C53;">PENFRET · GLÉNAN</span>
+    <span style="font-size:12px; color:#185FA5; font-family:var(--font-mono);">03/07 07:12</span>
+  </div>
+  <div style="padding:8px 10px; border-bottom:0.5px solid #B5D4F4;">
+    <div style="display:flex; justify-content:space-between; padding:0 2px 4px;">
+      <span style="font-size:11px; color:#185FA5; font-family:var(--font-mono);">PRÉVISION · AROME 1.3 · 24H</span>
+      <span style="font-size:11px; color:#378ADD; font-family:var(--font-mono);">[COMPARER] [7J]</span>
+    </div>
+    <div id="wC"></div>
+  </div>
+  <div style="padding:8px 12px; border-bottom:0.5px solid #B5D4F4; display:flex; justify-content:space-between; align-items:center;">
+    <div>
+      <div style="font-size:11px; color:#185FA5; font-family:var(--font-mono);">ACTUEL · DRÉNEC · −3 MIN</div>
+      <div style="font-size:24px; font-weight:500; color:#042C53; font-family:var(--font-mono);">12kn <span style="color:#993C1D; font-size:16px;">G18</span></div>
+    </div>
+    <div style="font-size:14px; color:#042C53; font-family:var(--font-mono); text-align:right;">W 270° <i class="ti ti-arrow-right" aria-hidden="true"></i></div>
+  </div>
+  <div style="padding:8px 10px; border-bottom:0.5px solid #B5D4F4;">
+    <div style="display:flex; justify-content:space-between; padding:0 2px 4px;">
+      <span style="font-size:11px; color:#185FA5; font-family:var(--font-mono);">MARÉE · CONCARNEAU</span>
+      <span style="font-size:11px; color:#042C53; font-family:var(--font-mono);">COEF 87</span>
+    </div>
+    <div id="tC"></div>
+  </div>
+  <div style="padding:8px 12px; border-bottom:0.5px solid #B5D4F4;">
+    <div style="font-size:11px; color:#185FA5; font-family:var(--font-mono); padding-bottom:3px;">SITUATION · BMS: <span style="color:#3B6D11;">AUCUN</span></div>
+    <p style="font-size:12px; color:#042C53; margin:0; line-height:1.5;">Dorsale anticyclonique s'établissant. Vent W 4 à 5 mollissant 3 en soirée, mer peu agitée…</p>
+  </div>
+  <div style="padding:8px 10px;">
+    <div style="font-size:11px; color:#185FA5; font-family:var(--font-mono); padding:0 2px 4px;">ISOBARES · METOFFICE · T+0</div>
+    <div id="iC"></div>
+  </div>
+</div>
+</div>
+
+</div>
+<script>
+const spd=[8,8,9,10,12,15,18,21,22,19,15,12,10];
+const gst=[12,13,14,16,19,23,27,30,31,27,21,17,14];
+const dirs=[250,255,260,262,268,272,278,284,290,292,288,282,276];
+const PA={sub:'#185FA5',axis:'#B5D4F4',grid:'#E6F1FB',area:'#B5D4F4',line:'#0C447C',gust:'#D85A30',now:'#1D9E75',tx:'#042C53',tide:'#85B7EB',tline:'#185FA5'};
+const PB={sub:'#85B7EB',axis:'#185FA5',grid:'#0C447C',area:'#0C447C',line:'#85B7EB',gust:'#F0997B',now:'#5DCAA5',tx:'#E6F1FB',tide:'#0C447C',tline:'#378ADD'};
+const PC=PA;
+function wsvg(p){const W=300,H=118,L=26,R=8,B=34,T=10,N=13,ym=35;
+const x=i=>L+i*(W-L-R)/(N-1);const y=v=>T+(H-B-T)*(1-v/ym);
+let ln='M'+x(0).toFixed(1)+' '+y(spd[0]).toFixed(1);for(let i=1;i<N;i++)ln+=' L'+x(i).toFixed(1)+' '+y(spd[i]).toFixed(1);
+let ar=ln+' L'+x(N-1).toFixed(1)+' '+(H-B)+' L'+x(0).toFixed(1)+' '+(H-B)+' Z';
+let gu='M'+x(0).toFixed(1)+' '+y(gst[0]).toFixed(1);for(let i=1;i<N;i++)gu+=' L'+x(i).toFixed(1)+' '+y(gst[i]).toFixed(1);
+let s='<svg viewBox="0 0 '+W+' '+H+'" width="100%" role="img" aria-label="Prévision de vent sur 24 heures" xmlns="http://www.w3.org/2000/svg" style="display:block;">';
+[10,20,30].forEach(v=>{s+='<line x1="'+L+'" y1="'+y(v)+'" x2="'+(W-R)+'" y2="'+y(v)+'" stroke="'+p.grid+'" stroke-width="1"/><text x="'+(L-4)+'" y="'+(y(v)+4)+'" font-size="11" fill="'+p.sub+'" text-anchor="end">'+v+'</text>';});
+s+='<path d="'+ar+'" fill="'+p.area+'" opacity="0.55"/><path d="'+ln+'" fill="none" stroke="'+p.line+'" stroke-width="2"/><path d="'+gu+'" fill="none" stroke="'+p.gust+'" stroke-width="1.6" stroke-dasharray="4 3"/>';
+const xn=L+7.2/24*(W-L-R);
+s+='<line x1="'+xn.toFixed(1)+'" y1="'+T+'" x2="'+xn.toFixed(1)+'" y2="'+(H-B+2)+'" stroke="'+p.now+'" stroke-width="1.6"/>';
+for(let i=0;i<N;i+=2){s+='<g transform="translate('+x(i).toFixed(1)+','+(H-22)+') rotate('+((dirs[i]+180)%360)+')"><path d="M0 -5 L3.4 4 L0 2 L-3.4 4 Z" fill="'+p.sub+'"/></g>';}
+[0,3,6,9,12].forEach(i=>{s+='<text x="'+x(i).toFixed(1)+'" y="'+(H-3)+'" font-size="11" fill="'+p.sub+'" text-anchor="middle">'+(i*2)+'h</text>';});
+return s+'</svg>';}
+const EX=[[-2.4,4.7],[3.5,1.1],[9.7,4.8],[16.0,1.2],[22.1,4.7],[28.3,1.1]];
+function hgt(t){for(let k=0;k<EX.length-1;k++){const a=EX[k],b=EX[k+1];if(t>=a[0]&&t<=b[0]){return (a[1]+b[1])/2+(a[1]-b[1])/2*Math.cos(Math.PI*(t-a[0])/(b[0]-a[0]));}}return 2.5;}
+function tsvg(p){const W=300,H=118,L=10,R=10,B=20,T=26;
+const x=t=>L+t*(W-L-R)/24;const y=v=>T+(H-B-T)*(1-v/5.4);
+let d='',a='';for(let t=0;t<=24.01;t+=0.5){const c=(t===0?'M':' L')+x(t).toFixed(1)+' '+y(hgt(t)).toFixed(1);d+=c;}
+a=d+' L'+x(24).toFixed(1)+' '+(H-B)+' L'+x(0).toFixed(1)+' '+(H-B)+' Z';
+let s='<svg viewBox="0 0 '+W+' '+H+'" width="100%" role="img" aria-label="Courbe de marée du jour" xmlns="http://www.w3.org/2000/svg" style="display:block;">';
+s+='<path d="'+a+'" fill="'+p.tide+'" opacity="0.45"/><path d="'+d+'" fill="none" stroke="'+p.tline+'" stroke-width="2"/>';
+s+='<text x="'+x(9.7).toFixed(1)+'" y="'+(y(4.8)-12)+'" font-size="11" fill="'+p.tx+'" font-weight="500" text-anchor="middle">PM 09:42</text><text x="'+x(9.7).toFixed(1)+'" y="'+(y(4.8)-1)+'" font-size="11" fill="'+p.sub+'" text-anchor="middle">4,8 m</text>';
+s+='<text x="'+x(16).toFixed(1)+'" y="'+(y(1.2)-16)+'" font-size="11" fill="'+p.tx+'" font-weight="500" text-anchor="middle">BM 15:58</text><text x="'+x(16).toFixed(1)+'" y="'+(y(1.2)-5)+'" font-size="11" fill="'+p.sub+'" text-anchor="middle">1,2 m</text>';
+s+='<text x="'+x(22.1).toFixed(1)+'" y="'+(y(4.7)-6)+'" font-size="11" fill="'+p.sub+'" text-anchor="middle">22:05</text>';
+const tn=7.2,xn=x(tn),yn=y(hgt(tn));
+s+='<circle cx="'+xn.toFixed(1)+'" cy="'+yn.toFixed(1)+'" r="5" fill="'+p.now+'"/><circle cx="'+xn.toFixed(1)+'" cy="'+yn.toFixed(1)+'" r="8.5" fill="none" stroke="'+p.now+'" stroke-width="1.4"/>';
+s+='<text x="'+(xn-12).toFixed(1)+'" y="'+(yn-10)+'" font-size="11" fill="'+p.now+'" font-weight="500" text-anchor="end">07:12 ↗</text>';
+[0,6,12,18,24].forEach(t=>{s+='<text x="'+x(t).toFixed(1)+'" y="'+(H-3)+'" font-size="11" fill="'+p.sub+'" text-anchor="middle">'+t+'h</text>';});
+return s+'</svg>';}
+function isvg(p){const W=300,H=104;
+let s='<svg viewBox="0 0 '+W+' '+H+'" width="100%" role="img" aria-label="Carte isobarique simplifiée" xmlns="http://www.w3.org/2000/svg" style="display:block;">';
+s+='<rect x="1" y="1" width="'+(W-2)+'" height="'+(H-2)+'" rx="6" fill="none" stroke="'+p.grid+'"/>';
+s+='<path d="M-10 30 C 60 6, 140 14, 200 34 S 300 60, 320 46" fill="none" stroke="'+p.axis+'" stroke-width="1.4"/>';
+s+='<path d="M-10 58 C 70 34, 150 44, 210 62 S 300 88, 320 76" fill="none" stroke="'+p.axis+'" stroke-width="1.4"/>';
+s+='<path d="M-10 86 C 80 64, 160 76, 230 92 S 300 110, 320 104" fill="none" stroke="'+p.axis+'" stroke-width="1.4"/>';
+s+='<ellipse cx="62" cy="70" rx="34" ry="20" fill="none" stroke="'+p.axis+'" stroke-width="1.4"/>';
+s+='<text x="62" y="75" font-size="15" font-weight="500" fill="'+p.gust+'" text-anchor="middle">D</text><text x="62" y="90" font-size="11" fill="'+p.sub+'" text-anchor="middle">996</text>';
+s+='<text x="232" y="38" font-size="15" font-weight="500" fill="'+p.tline+'" text-anchor="middle">A</text><text x="232" y="52" font-size="11" fill="'+p.sub+'" text-anchor="middle">1024</text>';
+s+='<text x="150" y="26" font-size="11" fill="'+p.sub+'">1013</text>';
+return s+'</svg>';}
+[['A',PA],['B',PB],['C',PC]].forEach(function(cfg){
+document.getElementById('w'+cfg[0]).innerHTML=wsvg(cfg[1]);
+document.getElementById('t'+cfg[0]).innerHTML=tsvg(cfg[1]);
+document.getElementById('i'+cfg[0]).innerHTML=isvg(cfg[1]);});
+</script>
