@@ -26,6 +26,8 @@
   --area: #B5D4F4;
   --line: #0C447C;
   --compare: #7F77DD;
+  --tide-area: #85B7EB;
+  --tide-line: #185FA5;
   --grid: #E6F1FB;
   --axis-label: #185FA5;
   --chip-bg: #E6F1FB;
@@ -61,6 +63,8 @@
   --area: #0C447C;
   --line: #85B7EB;
   --compare: #7F77DD;
+  --tide-area: #0C447C;
+  --tide-line: #378ADD;
   --grid: #0C447C;
   --axis-label: #85B7EB;
   --chip-bg: #0C447C;

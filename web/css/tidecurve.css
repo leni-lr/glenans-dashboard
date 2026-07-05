@@ -1,0 +1,8 @@
+.tc-area { fill: var(--tide-area); opacity: 0.45; }
+.tc-line { fill: none; stroke: var(--tide-line); stroke-width: 2; }
+.tc-axis { fill: var(--axis-label); font-size: 11px; }
+.tc-label-main { fill: var(--text-primary); font-size: 11px; font-weight: 500; }
+.tc-label-sub  { fill: var(--text-secondary); font-size: 11px; }
+.tc-now-dot  { fill: var(--now); }
+.tc-now-ring { fill: none; stroke: var(--now); stroke-width: 1.4; }
+.tc-now-label { fill: var(--now); font-size: 11px; font-weight: 500; }
