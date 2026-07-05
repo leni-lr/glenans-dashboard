@@ -4,6 +4,7 @@ import { t } from "./i18n.js";
 import { skeletonHTML, mountCard } from "./card.js";
 import { mountForecastCard } from "./cards/forecast.js";
 import { mountTideCard } from "./cards/tide.js";
+import { mountIsobarCard } from "./cards/isobar.js";
 
 // Source links used by each card's title / footer credits and later fallbacks.
 const SOURCES = {
@@ -17,6 +18,7 @@ const SOURCES = {
 const state = { settings: loadSettings() };
 let forecastCard = null;
 let tideCard = null;
+let isobarCard = null;
 
 function formatDateTime(lang, date = new Date()) {
   // e.g. "ven. 3 juil. · 07:12"
@@ -45,7 +47,6 @@ function renderSkeletons() {
   const { lang } = state.settings;
   mountCard("card-livewind", cardTitleRow(lang, "livewind_title") + skeletonHTML(2));
   mountCard("card-bulletin", cardTitleRow(lang, "bulletin_title") + skeletonHTML(3));
-  mountCard("card-isobar",   cardTitleRow(lang, "isobar_title")   + skeletonHTML(1, true));
 }
 
 function renderFooter() {
@@ -78,6 +79,12 @@ function renderAll() {
     tideCard.state.settings = state.settings;
     tideCard.refresh();
   }
+  if (!isobarCard) {
+    isobarCard = mountIsobarCard(state.settings);
+  } else {
+    isobarCard.state.settings = state.settings;
+    isobarCard.refresh();
+  }
   renderFooter();
 }
 
@@ -103,6 +110,7 @@ function wireEvents() {
     renderHeader();
     if (forecastCard) forecastCard.refresh();
     if (tideCard) tideCard.refresh();
+    if (isobarCard) isobarCard.refresh();
   });
 }
 

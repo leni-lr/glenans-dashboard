@@ -1,0 +1,13 @@
+.isobar-img {
+  width: 100%;
+  display: block;
+  border: 0.5px solid var(--card-border);
+  border-radius: 6px;
+}
+
+.isobar-step {
+  text-align: center;
+  font-size: 12px;
+  color: var(--text-body);
+  padding-top: 4px;
+}
