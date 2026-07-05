@@ -1,5 +1,6 @@
 import { parseTide } from "./tide.js";
 import { parseLatestRun, chartGifURL, CHART_STEPS } from "./chart.js";
+import { parseLiveWind, liveWindURL } from "./livewind.js";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -65,12 +66,31 @@ async function handleChart(url, request, ctx) {
   }
 }
 
+async function handleLiveWind(url, request, ctx) {
+  const nid = (url.searchParams.get("nid") || "6").replace(/[^0-9]/g, "") || "6";
+  const cache = caches.default;
+  const cacheKey = new Request(`https://livewind.cache/${nid}`, request);
+  const hit = await cache.match(cacheKey);
+  if (hit) return hit;
+  try {
+    const res = await fetch(liveWindURL(nid), { headers: { "User-Agent": UA } });
+    if (!res.ok) return json({ error: `windmorbihan HTTP ${res.status}` }, 502);
+    const data = parseLiveWind(await res.text());
+    const out = json({ nid: Number(nid), ...data }, 200, { "Cache-Control": "public, max-age=120" });
+    ctx.waitUntil(cache.put(cacheKey, out.clone()));
+    return out;
+  } catch (e) {
+    return json({ error: `livewind failed: ${String(e.message || e)}` }, 502);
+  }
+}
+
 export default {
   async fetch(request, env, ctx) {
     if (request.method === "OPTIONS") return new Response(null, { headers: CORS });
     const url = new URL(request.url);
     if (url.pathname === "/api/tide") return handleTide(url, request, ctx);
     if (url.pathname === "/api/chart") return handleChart(url, request, ctx);
+    if (url.pathname === "/api/livewind") return handleLiveWind(url, request, ctx);
     return json({ error: "not found" }, 404);
   },
 };
