@@ -1,5 +1,5 @@
 import { fetchForecast, MODELS } from "../sources/openmeteo.js";
-import { meteogram, tooltipAt, degToCardinal } from "../charts/meteogram.js";
+import { meteogram, tooltipAt } from "../charts/meteogram.js";
 import { t } from "../i18n.js";
 import { mountCard, skeletonHTML, errorHTML } from "../card.js";
 
@@ -44,9 +44,13 @@ export async function renderForecast(state) {
     });
     state.compareData = null;
     if (state.comparing) {
-      state.compareData = await fetchForecast({
-        lat: state.settings.lat, lon: state.settings.lon, model: state.compareModel, days,
-      });
+      try {
+        state.compareData = await fetchForecast({
+          lat: state.settings.lat, lon: state.settings.lon, model: state.compareModel, days,
+        });
+      } catch {
+        state.compareData = null; // overlay unavailable; still render the base meteogram
+      }
     }
     const svg = meteogram(state.data, {
       nowTime: new Date().toISOString(),
@@ -89,6 +93,7 @@ function bindInteractions(state) {
 
   const show = (clientX) => {
     const rect = wrap.getBoundingClientRect();
+    if (!rect.width) return;
     const frac = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
     const i = Math.round(frac * (state.data.times.length - 1));
     const p = tooltipAt(state.data, i);

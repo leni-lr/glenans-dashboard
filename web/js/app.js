@@ -65,7 +65,12 @@ function cardKeyToTitle(k) {
 function renderAll() {
   renderHeader();
   renderSkeletons();
-  forecastCard = mountForecastCard(state.settings);
+  if (!forecastCard) {
+    forecastCard = mountForecastCard(state.settings);
+  } else {
+    forecastCard.state.settings = state.settings;
+    forecastCard.refresh();
+  }
   renderFooter();
 }
 
