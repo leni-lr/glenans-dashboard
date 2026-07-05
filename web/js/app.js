@@ -3,6 +3,7 @@ import { initTheme, applyTheme, THEME_PREFS } from "./theme.js";
 import { t } from "./i18n.js";
 import { skeletonHTML, mountCard } from "./card.js";
 import { mountForecastCard } from "./cards/forecast.js";
+import { mountTideCard } from "./cards/tide.js";
 
 // Source links used by each card's title / footer credits and later fallbacks.
 const SOURCES = {
@@ -15,6 +16,7 @@ const SOURCES = {
 
 const state = { settings: loadSettings() };
 let forecastCard = null;
+let tideCard = null;
 
 function formatDateTime(lang, date = new Date()) {
   // e.g. "ven. 3 juil. · 07:12"
@@ -42,7 +44,6 @@ function cardTitleRow(lang, key, extra = "") {
 function renderSkeletons() {
   const { lang } = state.settings;
   mountCard("card-livewind", cardTitleRow(lang, "livewind_title") + skeletonHTML(2));
-  mountCard("card-tide",     cardTitleRow(lang, "tide_title")     + skeletonHTML(1, true));
   mountCard("card-bulletin", cardTitleRow(lang, "bulletin_title") + skeletonHTML(3));
   mountCard("card-isobar",   cardTitleRow(lang, "isobar_title")   + skeletonHTML(1, true));
 }
@@ -71,6 +72,12 @@ function renderAll() {
     forecastCard.state.settings = state.settings;
     forecastCard.refresh();
   }
+  if (!tideCard) {
+    tideCard = mountTideCard(state.settings);
+  } else {
+    tideCard.state.settings = state.settings;
+    tideCard.refresh();
+  }
   renderFooter();
 }
 
@@ -95,6 +102,7 @@ function wireEvents() {
   document.getElementById("btn-refresh").addEventListener("click", () => {
     renderHeader();
     if (forecastCard) forecastCard.refresh();
+    if (tideCard) tideCard.refresh();
   });
 }
 

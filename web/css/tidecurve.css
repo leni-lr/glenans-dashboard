@@ -6,3 +6,5 @@
 .tc-now-dot  { fill: var(--now); }
 .tc-now-ring { fill: none; stroke: var(--now); stroke-width: 1.4; }
 .tc-now-label { fill: var(--now); font-size: 11px; font-weight: 500; }
+
+.chip--coef { background: var(--coef-bg); color: var(--coef-text); }
