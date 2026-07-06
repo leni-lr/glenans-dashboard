@@ -35,9 +35,9 @@ function cdata(xml, tag) {
   return m ? m[1].trim() : "";
 }
 
-// All forecast échéances (those carrying a <vent>): title + vent + mer text.
-// Keys off <vent> presence, so it is robust to the shifting "Observations…"
-// titles that appear/change through the day.
+// Forecast échéances (those carrying a <vent>): the full report — VENT, MER,
+// HOULE, TEMPS (<TS>), VISIBILITE (<visi>). Keyed off <vent> presence, robust to
+// the shifting "Observations…" titles that appear/change through the day.
 function forecastEcheances(xml) {
   const out = [];
   const re = /<echeance\b[\s\S]*?<\/echeance>/g;
@@ -46,9 +46,28 @@ function forecastEcheances(xml) {
     const block = m[0];
     const vent = cdata(block, "vent");
     if (!vent) continue;
-    out.push({ title: cdata(block, "titreEcheance"), vent, mer: cdata(block, "mer") });
+    out.push({
+      title: cdata(block, "titreEcheance"),
+      vent,
+      mer: cdata(block, "mer"),
+      houle: cdata(block, "houle"),
+      temps: cdata(block, "TS"),
+      visi: cdata(block, "visi"),
+    });
   }
   return out;
+}
+
+// The observation échéance (measured wind etc.), which replaces the day forecast
+// later in the day. Title + free text block.
+function observationEcheance(xml) {
+  const re = /<echeance\b[\s\S]*?<\/echeance>/g;
+  let m;
+  while ((m = re.exec(xml))) {
+    const text = cdata(m[0], "observation");
+    if (text) return { title: cdata(m[0], "titreEcheance"), text };
+  }
+  return null;
 }
 
 export function parseBMS(xml) {
@@ -58,5 +77,6 @@ export function parseBMS(xml) {
   if (!title && !situation) throw new Error("bms parse: empty");
   const warning = special ? !/pas d'avis/i.test(special) : false;
   const forecasts = forecastEcheances(xml);
-  return { title, situation, special, warning, forecasts };
+  const observation = observationEcheance(xml);
+  return { title, situation, special, warning, forecasts, observation };
 }

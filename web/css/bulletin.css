@@ -6,6 +6,6 @@
   display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;
 }
 .bms-more { margin-top: 4px; }
-.bms-forecast { margin-top: 8px; padding-top: 8px; border-top: 0.5px solid var(--card-border); }
+.bms-extra { margin-top: 8px; padding-top: 8px; border-top: 0.5px solid var(--card-border); }
 .bms-fc-title { font-size: 12px; font-weight: 600; color: var(--text-secondary); }
 .bms-fc-line { font-size: 13px; line-height: 1.45; color: var(--text-body); margin: 4px 0 0; }

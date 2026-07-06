@@ -19,14 +19,21 @@ function titleRow(lang, warning) {
 }
 
 // The amber alert strip is a global element; the bulletin card owns it.
-function forecastHTML(lang, forecasts) {
-  if (!forecasts || !forecasts.length) return "";
-  const f = forecasts[0];
-  return `<div class="bms-forecast">` +
-    `<div class="bms-fc-title">${escapeHTML(f.title)}</div>` +
-    `<p class="bms-fc-line">${escapeHTML(f.vent)}</p>` +
-    (f.mer ? `<p class="bms-fc-line">${escapeHTML(f.mer)}</p>` : "") +
-    `</div>`;
+function reportSection(title, lines) {
+  const body = lines.filter(Boolean).map((l) => `<p class="bms-fc-line">${escapeHTML(l)}</p>`).join("");
+  return `<div class="bms-fc-title">${escapeHTML(title)}</div>${body}`;
+}
+
+// Today's daytime report: the "journée" forecast for the current day (full report
+// — vent/mer/houle/temps/visi), or the day's observations once they replace it
+// later on. The French-date match keeps it to today, not tomorrow's échéance.
+function todayReportHTML(d) {
+  const today = new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long" });
+  const fc = (d.forecasts || []).find((f) => /journée/i.test(f.title) && f.title.includes(today));
+  if (fc) return reportSection(fc.title, [fc.vent, fc.mer, fc.houle, fc.temps, fc.visi]);
+  const obs = d.observation;
+  if (obs && obs.title.includes(today)) return reportSection(obs.title, [obs.text]);
+  return "";
 }
 
 function setAlertStrip(warning, special) {
@@ -41,10 +48,11 @@ export async function renderBulletin(state) {
   mountCard(CARD_ID, plainTitle(lang) + skeletonHTML(3));
   try {
     const d = await fetchBMS(state.settings.zone);
+    const extra = todayReportHTML(d);
     const body = titleRow(lang, d.warning) +
       `<p class="bms-text" data-clamped="true">${escapeHTML(d.situation)}</p>` +
-      `<button class="linkbtn bms-more" data-act="more">${t(lang, "see_more")}</button>` +
-      forecastHTML(lang, d.forecasts);
+      (extra ? `<div class="bms-extra" hidden>${extra}</div>` : "") +
+      `<button class="linkbtn bms-more" data-act="more">${t(lang, "see_more")}</button>`;
     mountCard(CARD_ID, body, { fade: true });
     setAlertStrip(d.warning, d.special);
     bindMore(state);
@@ -59,11 +67,13 @@ function bindMore(state) {
   if (!card) return;
   const p = card.querySelector(".bms-text");
   const btn = card.querySelector(".bms-more");
+  const extra = card.querySelector(".bms-extra");
   if (!p || !btn) return;
   btn.addEventListener("click", () => {
-    const clamped = p.getAttribute("data-clamped") === "true";
-    p.setAttribute("data-clamped", clamped ? "false" : "true");
-    btn.textContent = t(state.settings.lang, clamped ? "see_less" : "see_more");
+    const nowClamped = p.getAttribute("data-clamped") === "false"; // toggle
+    p.setAttribute("data-clamped", String(nowClamped));
+    if (extra) extra.hidden = nowClamped;
+    btn.textContent = t(state.settings.lang, nowClamped ? "see_more" : "see_less");
   });
 }
 
