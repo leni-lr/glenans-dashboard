@@ -18,6 +18,20 @@ export function tideHeightAt(points, th) {
   return last.h;
 }
 
+const TIDE_HALF_PERIOD = 6.2075; // ~ half a semi-diurnal cycle, in hours
+
+// Prepend a synthetic extreme before the day's first one so the curve oscillates
+// from 00:00 instead of running flat until the first HW/LW (maree.info only gives
+// today onward, so there's no real previous extreme). Its height mirrors the next
+// extreme of that (opposite) type.
+export function withLeadingExtreme(pts) {
+  if (!pts.length || pts[0].th <= 0) return pts;
+  const first = pts[0];
+  const type = first.type === "high" ? "low" : "high";
+  const ref = pts.find((p) => p.type === type) || first;
+  return [{ th: first.th - TIDE_HALF_PERIOD, h: ref.h, type, time: "" }, ...pts];
+}
+
 export function tideCurve(model, opts = {}) {
   const W = opts.width ?? 300, H = opts.height ?? 118;
   const L = 10, R = 10, B = 20, TOP = 26;
@@ -46,7 +60,8 @@ export function tideCurve(model, opts = {}) {
       continue;
     }
     const tag = e.type === "high" ? "PM" : "BM";
-    const yTop = e.type === "high" ? y(e.h) - 12 : y(e.h) - 16;
+    // extra clearance at high water so the "now" dot/ring doesn't cover the label
+    const yTop = e.type === "high" ? y(e.h) - 22 : y(e.h) - 16;
     s += `<text class="tc-label-main" x="${f(x(e.th))}" y="${f(yTop)}" text-anchor="middle">${tag} ${e.time}</text>`;
     s += `<text class="tc-label-sub" x="${f(x(e.th))}" y="${f(yTop + 11)}" text-anchor="middle">${e.h.toFixed(1).replace(".", ",")} m</text>`;
   }
@@ -54,7 +69,7 @@ export function tideCurve(model, opts = {}) {
   const nx = f(x(model.nowTh)), ny = f(y(tideHeightAt(pts, model.nowTh)));
   s += `<circle class="tc-now-dot" cx="${nx}" cy="${ny}" r="5"/><circle class="tc-now-ring" cx="${nx}" cy="${ny}" r="8.5"/>`;
   const nowH = String(Math.floor(model.nowTh)).padStart(2, "0") + ":" + String(Math.round((model.nowTh % 1) * 60)).padStart(2, "0");
-  s += `<text class="tc-now-label" x="${f(x(model.nowTh) - 12)}" y="${f(y(tideHeightAt(pts, model.nowTh)) - 10)}" text-anchor="end">${nowH} ${model.rising ? "↗" : "↘"}</text>`;
+  s += `<text class="tc-now-label" x="${f(x(model.nowTh) - 12)}" y="${f(y(tideHeightAt(pts, model.nowTh)) - 15)}" text-anchor="end">${nowH} ${model.rising ? "↗" : "↘"}</text>`;
 
   for (const th of [0, 6, 12, 18, 24]) {
     s += `<text class="tc-axis" x="${f(x(th))}" y="${H - 3}" text-anchor="middle">${th}h</text>`;

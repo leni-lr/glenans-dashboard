@@ -1,6 +1,20 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { hoursFromMidnight, tideHeightAt, tideCurve } from "../js/charts/tidecurve.js";
+import { hoursFromMidnight, tideHeightAt, tideCurve, withLeadingExtreme } from "../js/charts/tidecurve.js";
+
+test("withLeadingExtreme prepends an opposite-type extreme before 00:00", () => {
+  const pts = [{ th: 3.5, h: 1.3, type: "low" }, { th: 9.7, h: 4.8, type: "high" }];
+  const out = withLeadingExtreme(pts);
+  assert.equal(out.length, 3);
+  assert.ok(out[0].th < 0, "leading extreme is before midnight");
+  assert.equal(out[0].type, "high", "opposite type of the first real extreme");
+  assert.equal(out[0].h, 4.8, "height mirrors the next high");
+});
+
+test("withLeadingExtreme is a no-op when a pre-midnight extreme already exists", () => {
+  const pts = [{ th: -1.5, h: 4.7, type: "high" }, { th: 3.5, h: 1.3, type: "low" }];
+  assert.equal(withLeadingExtreme(pts).length, 2);
+});
 
 test("hoursFromMidnight measures fractional hours from today 00:00", () => {
   assert.equal(hoursFromMidnight("2026-07-04T07:32", "2026-07-04"), 7 + 32 / 60);

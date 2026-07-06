@@ -1,5 +1,5 @@
 import { fetchTide } from "../sources/tide.js";
-import { hoursFromMidnight, tideHeightAt, tideCurve } from "../charts/tidecurve.js";
+import { hoursFromMidnight, tideHeightAt, tideCurve, withLeadingExtreme } from "../charts/tidecurve.js";
 import { t } from "../i18n.js";
 import { mountCard, skeletonHTML, errorHTML } from "../card.js";
 import { escapeHTML } from "../util/html.js";
@@ -18,9 +18,11 @@ function titleRow(lang, port, coef) {
 }
 
 function toModel(data) {
-  const pts = data.extremes
-    .map((e) => ({ th: hoursFromMidnight(e.iso, data.today), h: e.h, type: e.type, time: e.time }))
-    .sort((a, b) => a.th - b.th);
+  const pts = withLeadingExtreme(
+    data.extremes
+      .map((e) => ({ th: hoursFromMidnight(e.iso, data.today), h: e.h, type: e.type, time: e.time }))
+      .sort((a, b) => a.th - b.th)
+  );
   const now = new Date();
   const nowTh = now.getHours() + now.getMinutes() / 60;
   const rising = tideHeightAt(pts, nowTh + 0.05) >= tideHeightAt(pts, nowTh);
