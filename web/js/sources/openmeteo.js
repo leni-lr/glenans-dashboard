@@ -2,11 +2,12 @@
 const HOURLY = ["wind_speed_10m", "wind_gusts_10m", "wind_direction_10m", "precipitation", "cloud_cover"];
 
 export const MODELS = {
-  arome:  "meteofrance_arome_france_hd",
-  arpege: "meteofrance_arpege_europe",
-  icon:   "icon_eu",
-  ecmwf:  "ecmwf_ifs025",
-  gfs:    "gfs_global",
+  arome:   "meteofrance_arome_france_hd",
+  arome25: "meteofrance_arome_france",
+  arpege:  "meteofrance_arpege_europe",
+  icon:    "icon_eu",
+  ecmwf:   "ecmwf_ifs025",
+  gfs:     "gfs_global",
 };
 
 // Pure: build the request URL. URLSearchParams handles encoding.
