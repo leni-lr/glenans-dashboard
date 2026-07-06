@@ -1,6 +1,7 @@
 import { parseTide } from "./tide.js";
 import { parseLatestRun, chartGifURL, CHART_STEPS } from "./chart.js";
 import { parseLiveWind, liveWindURL } from "./livewind.js";
+import { parseBMS, bmsURL, tokenFromSetCookie, MF_HOME } from "./bms.js";
 
 const CORS = {
   "Access-Control-Allow-Origin": "*",
@@ -84,6 +85,46 @@ async function handleLiveWind(url, request, ctx) {
   }
 }
 
+// Mint a fresh rwg Bearer token: meteofrance.com sets an `mfsession` cookie
+// whose ROT13 is the token. env.MF_TOKEN overrides (for local testing).
+async function mintBMSToken(env) {
+  if (env && env.MF_TOKEN) return env.MF_TOKEN;
+  const res = await fetch(MF_HOME, { headers: { "User-Agent": UA } });
+  const setCookie = typeof res.headers.getSetCookie === "function"
+    ? res.headers.getSetCookie().join("\n")
+    : (res.headers.get("set-cookie") || "");
+  const token = tokenFromSetCookie(setCookie);
+  if (!token) throw new Error("mfsession cookie not found");
+  return token;
+}
+
+async function handleBMS(url, request, env, ctx) {
+  const zone = (url.searchParams.get("zone") || "BMSCOTE-01-04").replace(/[^A-Za-z0-9-]/g, "") || "BMSCOTE-01-04";
+  const cache = caches.default;
+  const cacheKey = new Request(`https://bms.cache/${zone}`, request);
+  const hit = await cache.match(cacheKey);
+  if (hit) return hit;
+  try {
+    const token = await mintBMSToken(env);
+    const res = await fetch(bmsURL(zone), {
+      headers: {
+        "User-Agent": UA,
+        "Authorization": `Bearer ${token}`,
+        "Origin": "https://meteofrance.com",
+        "Referer": "https://meteofrance.com/",
+        "Accept": "*/*",
+      },
+    });
+    if (!res.ok) return json({ error: `meteofrance HTTP ${res.status}` }, 502);
+    const data = parseBMS(await res.text());
+    const out = json(data, 200, { "Cache-Control": "public, max-age=1800" });
+    ctx.waitUntil(cache.put(cacheKey, out.clone()));
+    return out;
+  } catch (e) {
+    return json({ error: `bms failed: ${String(e.message || e)}` }, 502);
+  }
+}
+
 export default {
   async fetch(request, env, ctx) {
     if (request.method === "OPTIONS") return new Response(null, { headers: CORS });
@@ -91,6 +132,7 @@ export default {
     if (url.pathname === "/api/tide") return handleTide(url, request, ctx);
     if (url.pathname === "/api/chart") return handleChart(url, request, ctx);
     if (url.pathname === "/api/livewind") return handleLiveWind(url, request, ctx);
+    if (url.pathname === "/api/bms") return handleBMS(url, request, env, ctx);
     return json({ error: "not found" }, 404);
   },
 };

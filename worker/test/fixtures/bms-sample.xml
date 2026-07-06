@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<bulletin producteurBulletin="CNP" langueBulletin="FR" typeBulletin="cote" soustypeBulletin="BMR" zoneBulletin="4">
+<titreBulletin><![CDATA[Bulletin côte "Penmarc'h – Aiguillon" soir]]></titreBulletin>
+<chapeauBulletin><![CDATA[Origine Météo-France.]]></chapeauBulletin>
+<bulletinSpecial><![CDATA[Pas d'avis de vent fort en cours ni prévu. ]]></bulletinSpecial>
+<echeance idEcheance="sit1" nomEcheance="situation générale">
+    <titreEcheance><![CDATA[Situation générale le dimanche 5 juillet 2026]]></titreEcheance>
+    <region idRegion="cot4">
+    <situation><![CDATA[Anticyclone 1028 hPa au sud de l'Irlande, s'affaissant sur place, prévu 1022 hPa demain midi.]]></situation>
+    </region>
+</echeance>
+</bulletin>
