@@ -1,4 +1,8 @@
-# Glénans · Morning Briefing
+<p align="center">
+  <img src="web/icons/icon.svg" width="104" height="104" alt="Glénans compass-rose logo" />
+</p>
+
+<h1 align="center">Glénans · Morning Briefing</h1>
 
 A personal, mobile-first weather-briefing dashboard for a sailing instructor at
 Penfret, Îles de Glénan (Brittany). One phone screen: wind forecast, live Drénec
@@ -7,7 +11,8 @@ wind, tide curve, Météo-France marine bulletin, and the Met Office isobar char
 Static frontend (`/web`, vanilla JS, no build) on GitHub Pages + a Cloudflare
 Worker (`/worker`) that proxies the CORS-locked / token-gated sources.
 
-![screenshot placeholder](web/icons/icon-512.png)
+> **Screenshot:** _add one here_ — open the app on a phone and drop a capture in
+> `web/` (e.g. `web/screenshot.png`), then reference it: `![app](web/screenshot.png)`.
 
 ## Deploy in ~10 minutes
 
