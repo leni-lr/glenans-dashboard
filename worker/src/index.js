@@ -1,5 +1,5 @@
 import { parseTide } from "./tide.js";
-import { parseLatestRun, chartGifURL, CHART_STEPS } from "./chart.js";
+import { parseLatestRun, chartGifURL, CHART_STEPS, previousRun } from "./chart.js";
 import { parseLiveWind, liveWindURL } from "./livewind.js";
 import { parseBMS, bmsURL, tokenFromSetCookie, MF_HOME } from "./bms.js";
 
@@ -35,6 +35,18 @@ async function handleTide(url, request, ctx) {
   }
 }
 
+// Resolve to the latest run whose chart images are actually published: the page
+// may list a run (00Z) before its GIFs exist, so probe step 0 and step back 12 h.
+async function resolveRun(parsed) {
+  let run = parsed;
+  for (let i = 0; i < 3; i++) {
+    const probe = await fetch(chartGifURL(run, 0), { headers: { "User-Agent": UA } });
+    if (probe.ok) { try { await probe.body?.cancel(); } catch {} return run; }
+    run = previousRun(run);
+  }
+  return run;
+}
+
 async function handleChart(url, request, ctx) {
   const stepParam = url.searchParams.get("step");
   const cache = caches.default;
@@ -44,7 +56,7 @@ async function handleChart(url, request, ctx) {
   try {
     const page = await fetch(METOFFICE_PAGE, { headers: { "User-Agent": UA } });
     if (!page.ok) return json({ error: `metoffice HTTP ${page.status}` }, 502);
-    const run = parseLatestRun(await page.text());
+    const run = await resolveRun(parseLatestRun(await page.text()));
 
     if (stepParam == null) {
       const out = json({ run, steps: CHART_STEPS }, 200, { "Cache-Control": "public, max-age=3600" });

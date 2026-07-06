@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { parseLatestRun, chartGifURL, CHART_STEPS } from "../src/chart.js";
+import { parseLatestRun, chartGifURL, CHART_STEPS, previousRun } from "../src/chart.js";
 
 const html = readFileSync(new URL("./fixtures/metoffice-surface-pressure.html", import.meta.url), "utf8");
 
@@ -22,4 +22,9 @@ test("chartGifURL builds the colour URL with padded step", () => {
 
 test("CHART_STEPS covers analysis through T+120", () => {
   assert.deepEqual(CHART_STEPS, [0, 12, 24, 36, 48, 60, 72, 96, 120]);
+});
+
+test("previousRun steps back 12 h across the 00Z/12Z boundary and the day", () => {
+  assert.equal(previousRun("2026-07-06T0000"), "2026-07-05T1200");
+  assert.equal(previousRun("2026-07-06T1200"), "2026-07-06T0000");
 });
