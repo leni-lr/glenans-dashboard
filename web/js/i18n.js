@@ -17,6 +17,7 @@ export const DICT = {
   bms_none:         { fr: "BMS : aucun",           en: "BMS: none" },
   bms_active:       { fr: "BMS en cours",          en: "BMS in effect" },
   see_more:         { fr: "voir plus",             en: "see more" },
+  see_less:         { fr: "voir moins",            en: "see less" },
   isobar_title:     { fr: "Isobares · Met Office", en: "Isobars · Met Office" },
   source_down:      { fr: "Source indisponible — ouvrir sur le site ↗",
                       en: "Source unavailable — open on the site ↗" },

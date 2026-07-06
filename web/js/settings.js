@@ -5,6 +5,7 @@ export const DEFAULTS = {
   themePref: "auto",
   station: "Drenec",
   port: "94",
+  zone: "BMSCOTE-01-04",
   lat: 47.716,
   lon: -3.950,
   place: "Penfret · Glénan",

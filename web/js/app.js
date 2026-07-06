@@ -1,11 +1,11 @@
 import { loadSettings, saveSetting } from "./settings.js";
 import { initTheme, applyTheme, THEME_PREFS } from "./theme.js";
 import { t } from "./i18n.js";
-import { skeletonHTML, mountCard } from "./card.js";
 import { mountForecastCard } from "./cards/forecast.js";
 import { mountTideCard } from "./cards/tide.js";
 import { mountIsobarCard } from "./cards/isobar.js";
 import { mountLiveWindCard } from "./cards/livewind.js";
+import { mountBulletinCard } from "./cards/bulletin.js";
 
 // Source links used by each card's title / footer credits and later fallbacks.
 const SOURCES = {
@@ -21,6 +21,7 @@ let forecastCard = null;
 let tideCard = null;
 let isobarCard = null;
 let livewindCard = null;
+let bulletinCard = null;
 
 function formatDateTime(lang, date = new Date()) {
   // e.g. "ven. 3 juil. · 07:12"
@@ -40,16 +41,6 @@ function renderHeader() {
   document.getElementById("btn-settings").setAttribute("aria-label", t(lang, "settings"));
 }
 
-function cardTitleRow(lang, key, extra = "") {
-  return `<div class="card__title-row"><span class="card__title">${t(lang, key)}</span>${extra}</div>`;
-}
-
-// Mount every card with a titled skeleton; later phases replace these bodies.
-function renderSkeletons() {
-  const { lang } = state.settings;
-  mountCard("card-bulletin", cardTitleRow(lang, "bulletin_title") + skeletonHTML(3));
-}
-
 function renderFooter() {
   const { lang } = state.settings;
   const links = Object.entries(SOURCES)
@@ -67,7 +58,6 @@ function cardKeyToTitle(k) {
 
 function renderAll() {
   renderHeader();
-  renderSkeletons();
   if (!forecastCard) {
     forecastCard = mountForecastCard(state.settings);
   } else {
@@ -85,6 +75,12 @@ function renderAll() {
   } else {
     tideCard.state.settings = state.settings;
     tideCard.refresh();
+  }
+  if (!bulletinCard) {
+    bulletinCard = mountBulletinCard(state.settings);
+  } else {
+    bulletinCard.state.settings = state.settings;
+    bulletinCard.refresh();
   }
   if (!isobarCard) {
     isobarCard = mountIsobarCard(state.settings);
@@ -118,6 +114,7 @@ function wireEvents() {
     if (forecastCard) forecastCard.refresh();
     if (livewindCard) livewindCard.refresh();
     if (tideCard) tideCard.refresh();
+    if (bulletinCard) bulletinCard.refresh();
     if (isobarCard) isobarCard.refresh();
   });
 }
