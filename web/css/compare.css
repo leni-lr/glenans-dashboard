@@ -14,7 +14,13 @@
 }
 .cmp-head { display: flex; align-items: center; justify-content: space-between; }
 .cmp-title { font-weight: 700; color: var(--text-primary); }
-.cmp-overlay { margin-top: 8px; }
+.cmp-tabs { display: flex; gap: 6px; margin-top: 10px; }
+.cmp-tab {
+  flex: 1; background: var(--chip-bg); color: var(--chip-text); border: none;
+  border-radius: 9px; padding: 7px 4px; font: inherit; font-size: 13px; cursor: pointer; min-height: 40px;
+}
+.cmp-tab--on { background: var(--accent); color: var(--header-title); font-weight: 600; }
+.cmp-overlay { margin-top: 10px; }
 .cmp-legend {
   display: flex; flex-wrap: wrap; gap: 10px; font-size: 12px;
   color: var(--text-secondary); padding: 4px 0 10px;

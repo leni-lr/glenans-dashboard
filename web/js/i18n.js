@@ -19,6 +19,8 @@ export const DICT = {
   see_more:         { fr: "voir plus",             en: "see more" },
   see_less:         { fr: "voir moins",            en: "see less" },
   compare_title:    { fr: "Comparaison des modèles", en: "Model comparison" },
+  compare_today:    { fr: "aujourd'hui",           en: "today" },
+  compare_tomorrow: { fr: "demain",                en: "tomorrow" },
   close:            { fr: "Fermer",                en: "Close" },
   loading:          { fr: "Chargement…",           en: "Loading…" },
   isobar_title:     { fr: "Isobares · Met Office", en: "Isobars · Met Office" },

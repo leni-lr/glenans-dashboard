@@ -1,5 +1,17 @@
 import { computeYMax } from "./meteogram.js";
 
+// Slice a forecast's parallel arrays to a [start, end) hour-index window.
+export function sliceData(data, start, end) {
+  const stop = end == null ? data.times.length : Math.min(end, data.times.length);
+  const s = Math.min(start, data.times.length);
+  return {
+    times: data.times.slice(s, stop),
+    speed: data.speed.slice(s, stop),
+    gust: (data.gust ?? []).slice(s, stop),
+    dir: (data.dir ?? []).slice(s, stop),
+  };
+}
+
 // Drop trailing null speeds (short-range models pad the tail with nulls).
 export function trimTrailingNulls(data) {
   let n = data.times.length;
@@ -21,6 +33,7 @@ export function overlayChart(series, opts = {}) {
   const plotW = W - L - R, plotH = H - B - TOP;
   const active = series.filter((s) => Array.isArray(s.speed) && s.speed.length);
   const maxLen = Math.max(1, ...active.map((s) => s.times.length));
+  const labelTimes = (active.find((s) => s.times.length === maxLen) || {}).times || [];
   const allSpeeds = active.flatMap((s) => s.speed).filter((v) => v != null);
   const ym = computeYMax(allSpeeds);
   const x = (i) => L + (maxLen <= 1 ? 0 : (i * plotW) / (maxLen - 1));
@@ -45,5 +58,20 @@ export function overlayChart(series, opts = {}) {
     });
     if (d) s += `<path class="cmp-line--${idx}" d="${d.trim()}"/>`;
   });
+
+  // x-axis time scale: weekday at day boundaries for the week view, else hours.
+  const is7 = opts.range === "week";
+  for (let i = 0; i < labelTimes.length; i++) {
+    const hh = Number(labelTimes[i].slice(11, 13));
+    if (is7) {
+      if (hh === 0) {
+        const wd = new Date(labelTimes[i]).toLocaleDateString(
+          opts.lang === "en" ? "en-GB" : "fr-FR", { weekday: "short" });
+        s += `<text class="mg-axis" x="${f(x(i))}" y="${H - 6}" text-anchor="middle">${wd}</text>`;
+      }
+    } else if (hh % 6 === 0) {
+      s += `<text class="mg-axis" x="${f(x(i))}" y="${H - 6}" text-anchor="middle">${hh}h</text>`;
+    }
+  }
   return s + `</svg>`;
 }
