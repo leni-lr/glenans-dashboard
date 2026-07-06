@@ -26,6 +26,15 @@ test("parseBMS throws when the document has no title and no situation", () => {
   assert.throws(() => parseBMS("<bulletin></bulletin>"));
 });
 
+test("parseBMS extracts forecast échéances with vent + mer", () => {
+  const b = parseBMS(xml);
+  assert.ok(b.forecasts.length >= 1, "at least one forecast");
+  const f = b.forecasts[0];
+  assert.match(f.title, /Prévisions pour la journée/);
+  assert.match(f.vent, /VENT/);
+  assert.match(f.mer, /MER/);
+});
+
 test("bmsDomain maps the page zone BMS→BMR", () => {
   assert.equal(bmsDomain("BMSCOTE-01-04"), "BMRCOTE-01-04");
 });

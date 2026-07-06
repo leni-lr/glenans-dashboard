@@ -9,4 +9,10 @@
     <situation><![CDATA[Anticyclone 1028 hPa au sud de l'Irlande, s'affaissant sur place, prévu 1022 hPa demain midi.]]></situation>
     </region>
 </echeance>
+<echeance idEcheance="j1">
+<titreEcheance><![CDATA[Prévisions pour la journée du lundi 6 juillet]]></titreEcheance>
+<region idRegion="cot4">
+<vent><![CDATA[VENT : secteur Nord-Ouest 3 à 4, mollissant en soirée.]]></vent>
+<mer><![CDATA[MER : peu agitée, devenant belle.]]></mer>
+</region></echeance>
 </bulletin>

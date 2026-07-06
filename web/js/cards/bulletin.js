@@ -19,6 +19,16 @@ function titleRow(lang, warning) {
 }
 
 // The amber alert strip is a global element; the bulletin card owns it.
+function forecastHTML(lang, forecasts) {
+  if (!forecasts || !forecasts.length) return "";
+  const f = forecasts[0];
+  return `<div class="bms-forecast">` +
+    `<div class="bms-fc-title">${escapeHTML(f.title)}</div>` +
+    `<p class="bms-fc-line">${escapeHTML(f.vent)}</p>` +
+    (f.mer ? `<p class="bms-fc-line">${escapeHTML(f.mer)}</p>` : "") +
+    `</div>`;
+}
+
 function setAlertStrip(warning, special) {
   const el = document.getElementById("alert-strip");
   if (!el) return;
@@ -33,7 +43,8 @@ export async function renderBulletin(state) {
     const d = await fetchBMS(state.settings.zone);
     const body = titleRow(lang, d.warning) +
       `<p class="bms-text" data-clamped="true">${escapeHTML(d.situation)}</p>` +
-      `<button class="linkbtn bms-more" data-act="more">${t(lang, "see_more")}</button>`;
+      `<button class="linkbtn bms-more" data-act="more">${t(lang, "see_more")}</button>` +
+      forecastHTML(lang, d.forecasts);
     mountCard(CARD_ID, body, { fade: true });
     setAlertStrip(d.warning, d.special);
     bindMore(state);

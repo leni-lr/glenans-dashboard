@@ -35,11 +35,28 @@ function cdata(xml, tag) {
   return m ? m[1].trim() : "";
 }
 
+// All forecast échéances (those carrying a <vent>): title + vent + mer text.
+// Keys off <vent> presence, so it is robust to the shifting "Observations…"
+// titles that appear/change through the day.
+function forecastEcheances(xml) {
+  const out = [];
+  const re = /<echeance\b[\s\S]*?<\/echeance>/g;
+  let m;
+  while ((m = re.exec(xml))) {
+    const block = m[0];
+    const vent = cdata(block, "vent");
+    if (!vent) continue;
+    out.push({ title: cdata(block, "titreEcheance"), vent, mer: cdata(block, "mer") });
+  }
+  return out;
+}
+
 export function parseBMS(xml) {
   const title = cdata(xml, "titreBulletin");
   const situation = cdata(xml, "situation");
   const special = cdata(xml, "bulletinSpecial");
   if (!title && !situation) throw new Error("bms parse: empty");
   const warning = special ? !/pas d'avis/i.test(special) : false;
-  return { title, situation, special, warning };
+  const forecasts = forecastEcheances(xml);
+  return { title, situation, special, warning, forecasts };
 }
