@@ -35,7 +35,10 @@ GET https://backend.windmorbihan.com/observations/chart.json?sensor=6&time_frame
 ```
 GET https://rwg.meteofrance.com/internet2018client/2.0/report
       ?domain=BMRCOTE-01-04&report_type=marine&report_subtype=BMR_cote_fr&format=xml
-    Header: Authorization: Bearer <JWT>       (JWT has iat, NO exp — usable as a constant)
+    Header: Authorization: Bearer <JWT>
+    Token mint (rotates ~hourly): GET meteofrance.com sets an `mfsession` cookie
+    whose ROT13 (letters only) IS the Bearer JWT. The Worker mints fresh per
+    request; env.MF_TOKEN overrides. (No hardcoded token — the captured one dies in ~1h.)
 → 200 application/xml. Relevant CDATA elements:
   <titreBulletin>      Bulletin côte "Penmarc'h – Aiguillon" soir
   <situation>          the "situation générale" paragraph  ← main card text
