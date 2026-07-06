@@ -5,6 +5,7 @@ import { skeletonHTML, mountCard } from "./card.js";
 import { mountForecastCard } from "./cards/forecast.js";
 import { mountTideCard } from "./cards/tide.js";
 import { mountIsobarCard } from "./cards/isobar.js";
+import { mountLiveWindCard } from "./cards/livewind.js";
 
 // Source links used by each card's title / footer credits and later fallbacks.
 const SOURCES = {
@@ -19,6 +20,7 @@ const state = { settings: loadSettings() };
 let forecastCard = null;
 let tideCard = null;
 let isobarCard = null;
+let livewindCard = null;
 
 function formatDateTime(lang, date = new Date()) {
   // e.g. "ven. 3 juil. · 07:12"
@@ -45,7 +47,6 @@ function cardTitleRow(lang, key, extra = "") {
 // Mount every card with a titled skeleton; later phases replace these bodies.
 function renderSkeletons() {
   const { lang } = state.settings;
-  mountCard("card-livewind", cardTitleRow(lang, "livewind_title") + skeletonHTML(2));
   mountCard("card-bulletin", cardTitleRow(lang, "bulletin_title") + skeletonHTML(3));
 }
 
@@ -72,6 +73,12 @@ function renderAll() {
   } else {
     forecastCard.state.settings = state.settings;
     forecastCard.refresh();
+  }
+  if (!livewindCard) {
+    livewindCard = mountLiveWindCard(state.settings);
+  } else {
+    livewindCard.state.settings = state.settings;
+    livewindCard.refresh();
   }
   if (!tideCard) {
     tideCard = mountTideCard(state.settings);
@@ -109,6 +116,7 @@ function wireEvents() {
   document.getElementById("btn-refresh").addEventListener("click", () => {
     renderHeader();
     if (forecastCard) forecastCard.refresh();
+    if (livewindCard) livewindCard.refresh();
     if (tideCard) tideCard.refresh();
     if (isobarCard) isobarCard.refresh();
   });

@@ -1,0 +1,8 @@
+.lw-main { display: flex; align-items: baseline; gap: 8px; margin-top: 4px; }
+.lw-speed { font-size: 44px; font-weight: 700; line-height: 1; color: var(--text-primary); }
+.lw-unit { font-size: 16px; color: var(--text-secondary); }
+.lw-gust { margin-left: auto; font-size: 14px; color: var(--gust); }
+.lw-dir { display: flex; align-items: center; gap: 6px; margin-top: 6px; font-size: 14px; color: var(--text-body); }
+.lw-arrow { display: inline-block; font-size: 18px; color: var(--accent); }
+.lw-stamp { margin-top: 6px; font-size: 12px; color: var(--text-secondary); }
+.lw-stamp--stale { color: var(--danger); font-weight: 600; }
