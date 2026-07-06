@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="512" height="512" role="img" aria-label="Glénans compass rose">
+<rect x="0" y="0" width="120" height="120" rx="27" fill="#042C53"/>
+<circle cx="60" cy="60" r="42" fill="none" stroke="#185FA5" stroke-width="2.5"/>
+<circle cx="84" cy="36" r="2.5" fill="#185FA5"/><circle cx="84" cy="84" r="2.5" fill="#185FA5"/>
+<circle cx="36" cy="84" r="2.5" fill="#185FA5"/><circle cx="36" cy="36" r="2.5" fill="#185FA5"/>
+<path d="M60 20 L68 60 L60 53 L52 60 Z" fill="#FFFFFF"/>
+<path d="M60 100 L68 60 L60 67 L52 60 Z" fill="#185FA5"/>
+<path d="M100 60 L60 68 L67 60 L60 52 Z" fill="#378ADD"/>
+<path d="M20 60 L60 68 L53 60 L60 52 Z" fill="#378ADD"/>
+<circle cx="60" cy="60" r="4" fill="#85B7EB"/>
+</svg>

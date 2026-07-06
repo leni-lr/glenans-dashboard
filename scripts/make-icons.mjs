@@ -36,26 +36,43 @@ function png(size, draw) {
   return Buffer.concat([sig, chunk("IHDR", ihdr), chunk("IDAT", deflateSync(raw)), chunk("IEND", Buffer.alloc(0))]);
 }
 
-// Navy #0C447C field; light sail triangle #B5D4F4 within the centre safe-zone.
-const NAVY = [12, 68, 124, 255], SAIL = [181, 212, 244, 255];
-function scene(pad) {
+// Compass rose (rose des vents), ported from web/icons/icon.svg (120x120 space).
+const NAVY = [4, 44, 83, 255], B185 = [24, 95, 165, 255], B378 = [55, 138, 221, 255],
+      WHITE = [255, 255, 255, 255], CENTER = [133, 183, 235, 255];
+const PT_N = [[60, 20], [68, 60], [60, 53], [52, 60]];
+const PT_S = [[60, 100], [68, 60], [60, 67], [52, 60]];
+const PT_E = [[100, 60], [60, 68], [67, 60], [60, 52]];
+const PT_W = [[20, 60], [60, 68], [53, 60], [60, 52]];
+const CORNERS = [[84, 36], [84, 84], [36, 84], [36, 36]];
+
+function inPoly(px, py, pts) {
+  let inside = false;
+  for (let i = 0, j = pts.length - 1; i < pts.length; j = i++) {
+    const [xi, yi] = pts[i], [xj, yj] = pts[j];
+    if (((yi > py) !== (yj > py)) && (px < (xj - xi) * (py - yi) / (yj - yi) + xi)) inside = !inside;
+  }
+  return inside;
+}
+const hyp = (px, py, cx, cy) => Math.hypot(px - cx, py - cy);
+
+// scale < 1 shrinks the rose into a padded safe-zone (for maskable icons).
+function compass(scale) {
   return (x, y, size) => {
-    const s = size;
-    const ax = 0.52 * s, ay = pad * s;            // apex
-    const bx = 0.30 * s, by = (1 - pad) * s;      // bottom-left
-    const cx = 0.62 * s, cy = (1 - pad) * s;      // bottom-right
-    const sign = (px, py, qx, qy, rx, ry) => (px - rx) * (qy - ry) - (qx - rx) * (py - ry);
-    const d1 = sign(x, y, ax, ay, bx, by);
-    const d2 = sign(x, y, bx, by, cx, cy);
-    const d3 = sign(x, y, cx, cy, ax, ay);
-    const inTri = !((d1 < 0 || d2 < 0 || d3 < 0) && (d1 > 0 || d2 > 0 || d3 > 0));
-    return inTri ? SAIL : NAVY;
+    const u = (x / size * 120 - 60) / scale + 60;
+    const v = (y / size * 120 - 60) / scale + 60;
+    if (hyp(u, v, 60, 60) <= 4) return CENTER;             // centre boss (top)
+    if (inPoly(u, v, PT_N)) return WHITE;                  // north point
+    if (inPoly(u, v, PT_S)) return B185;                   // south point
+    if (inPoly(u, v, PT_E) || inPoly(u, v, PT_W)) return B378; // east/west points
+    for (const [cx, cy] of CORNERS) if (hyp(u, v, cx, cy) <= 2.5) return B185;
+    if (Math.abs(hyp(u, v, 60, 60) - 42) <= 1.25) return B185; // ring
+    return NAVY;                                           // field (full bleed)
   };
 }
 
 mkdirSync(new URL("../web/icons/", import.meta.url), { recursive: true });
 const out = (name, buf) => writeFileSync(new URL(`../web/icons/${name}`, import.meta.url), buf);
-out("icon-192.png", png(192, scene(0.18)));
-out("icon-512.png", png(512, scene(0.18)));
-out("icon-maskable-512.png", png(512, scene(0.28))); // extra safe-zone padding
-console.log("icons written: 192, 512, maskable-512");
+out("icon-192.png", png(192, compass(1)));
+out("icon-512.png", png(512, compass(1)));
+out("icon-maskable-512.png", png(512, compass(0.8))); // extra safe-zone padding
+console.log("icons written: 192, 512, maskable-512 (compass rose)");
