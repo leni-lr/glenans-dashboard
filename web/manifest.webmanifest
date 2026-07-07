@@ -1,6 +1,6 @@
 {
-  "name": "Glénans · Briefing",
-  "short_name": "Glénans",
+  "name": "Dashboard Météo",
+  "short_name": "Dashboard Météo",
   "description": "Briefing météo marine pour Penfret, Îles de Glénan.",
   "lang": "fr",
   "start_url": "./",

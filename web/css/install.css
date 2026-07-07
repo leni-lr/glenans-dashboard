@@ -1,0 +1,18 @@
+.footer-link {
+  display: inline-block; margin-top: 8px; padding: 4px 0;
+  background: transparent; border: none; cursor: pointer; font: inherit;
+  font-size: 12px; color: var(--accent); text-decoration: underline;
+}
+
+.ih-modal {
+  position: fixed; inset: 0; background: rgba(4, 44, 83, 0.55);
+  display: flex; align-items: center; justify-content: center; z-index: 60; padding: 16px;
+}
+.ih-panel {
+  background: var(--card-bg); border: 0.5px solid var(--card-border);
+  border-radius: var(--radius); max-width: 420px; width: 100%; padding: 16px;
+}
+.ih-head { display: flex; align-items: center; justify-content: space-between; }
+.ih-title { font-weight: 700; color: var(--text-primary); }
+.ih-line { font-size: 14px; line-height: 1.5; color: var(--text-body); margin: 10px 0 0; }
+.ih-note { font-size: 12px; color: var(--text-secondary); margin-top: 12px; }

@@ -6,6 +6,7 @@ import { mountTideCard } from "./cards/tide.js";
 import { mountIsobarCard } from "./cards/isobar.js";
 import { mountLiveWindCard } from "./cards/livewind.js";
 import { mountBulletinCard } from "./cards/bulletin.js";
+import { openInstallHelp } from "./cards/installhelp.js";
 
 // Source links used by each card's title / footer credits and later fallbacks.
 const SOURCES = {
@@ -47,6 +48,8 @@ function renderFooter() {
     .map(([k, href]) => `<a href="${href}" target="_blank" rel="noopener">${t(lang, `${cardKeyToTitle(k)}`)}</a>`)
     .join(" · ");
   document.getElementById("footer-credits").innerHTML = links;
+  const ih = document.getElementById("btn-install-help");
+  if (ih) ih.textContent = t(lang, "install_link");
 }
 
 function cardKeyToTitle(k) {
@@ -106,6 +109,9 @@ function wireEvents() {
     document.documentElement.dataset.themePref = next;
     applyTheme(next);
   });
+
+  const ih = document.getElementById("btn-install-help");
+  if (ih) ih.addEventListener("click", () => openInstallHelp(state.settings.lang));
 
   // Manual refresh: re-stamp the header and refresh card data.
   document.getElementById("btn-refresh").addEventListener("click", () => {

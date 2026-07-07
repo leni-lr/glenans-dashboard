@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <title>Glénans · Briefing</title>
+  <title>Dashboard Météo</title>
   <link rel="stylesheet" href="./css/tokens.css" />
   <link rel="stylesheet" href="./css/layout.css" />
   <link rel="stylesheet" href="./css/meteogram.css" />
@@ -12,8 +12,11 @@
   <link rel="stylesheet" href="./css/livewind.css" />
   <link rel="stylesheet" href="./css/bulletin.css" />
   <link rel="stylesheet" href="./css/compare.css" />
+  <link rel="stylesheet" href="./css/install.css" />
   <link rel="manifest" href="./manifest.webmanifest" />
   <meta name="theme-color" content="#0C447C" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Dashboard Météo" />
   <link rel="icon" type="image/svg+xml" href="./icons/icon.svg" />
   <link rel="apple-touch-icon" href="./icons/icon-192.png" />
 </head>
@@ -40,7 +43,10 @@
     <section id="card-isobar" class="card"></section>
   </main>
 
-  <footer id="footer-credits" class="footer"></footer>
+  <footer class="footer">
+    <div id="footer-credits"></div>
+    <button id="btn-install-help" class="footer-link" type="button"></button>
+  </footer>
 
   <script type="module" src="./js/app.js"></script>
   <script>
