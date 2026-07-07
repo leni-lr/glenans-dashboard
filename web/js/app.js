@@ -1,5 +1,5 @@
 import { loadSettings, saveSetting } from "./settings.js";
-import { initTheme, applyTheme, THEME_PREFS } from "./theme.js";
+import { initTheme, applyTheme } from "./theme.js";
 import { t } from "./i18n.js";
 import { mountForecastCard } from "./cards/forecast.js";
 import { mountTideCard } from "./cards/tide.js";
@@ -99,10 +99,9 @@ function wireEvents() {
     renderAll();
   });
 
-  // Cycle theme preference auto -> light -> dark -> auto (settings panel comes later).
+  // One click flips light <-> dark, based on the currently-resolved theme.
   document.getElementById("btn-settings").addEventListener("click", () => {
-    const i = THEME_PREFS.indexOf(state.settings.themePref);
-    const next = THEME_PREFS[(i + 1) % THEME_PREFS.length];
+    const next = document.documentElement.dataset.theme === "dark" ? "light" : "dark";
     state.settings = saveSetting("themePref", next);
     document.documentElement.dataset.themePref = next;
     applyTheme(next);

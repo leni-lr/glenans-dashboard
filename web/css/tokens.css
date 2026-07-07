@@ -52,8 +52,8 @@
 
 :root[data-theme="dark"] {
   --page-bg: #042C53;
-  --card-bg: transparent;         /* dark = hairline-separated sections, no cards */
-  --card-border: transparent;
+  --card-bg: #0A3A6B;             /* lifted navy panel — dark mirrors light's cards */
+  --card-border: #185FA5;
   --header-bg: transparent;
   --header-title: #E6F1FB;
   --header-subtitle: #85B7EB;
