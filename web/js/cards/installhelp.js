@@ -8,8 +8,8 @@ export function openInstallHelp(lang) {
   host.innerHTML = `<div class="ih-panel">` +
     `<div class="ih-head"><span class="ih-title">${t(lang, "install_title")}</span>` +
     `<button class="linkbtn" data-act="close" aria-label="${t(lang, "close")}">✕</button></div>` +
-    `<p class="ih-line"><b>iPhone</b> — ${t(lang, "install_ios")}</p>` +
-    `<p class="ih-line"><b>Android</b> — ${t(lang, "install_android")}</p>` +
+    `<p class="ih-line"><b>iPhone</b> : ${t(lang, "install_ios")}</p>` +
+    `<p class="ih-line"><b>Android</b> : ${t(lang, "install_android")}</p>` +
     `<p class="ih-note">${t(lang, "install_note")}</p>` +
     `</div>`;
   document.body.appendChild(host);
