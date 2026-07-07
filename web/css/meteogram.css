@@ -33,3 +33,4 @@
   white-space: nowrap;
 }
 :root[data-theme="dark"] .mg-tip { background: var(--navy-800); border-color: var(--navy-600); }
+.mg-arrow-inline { display: inline-block; color: var(--accent); }

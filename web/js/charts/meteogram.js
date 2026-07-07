@@ -42,7 +42,10 @@ export function bindMeteogramTooltip(wrap, data) {
     const p = tooltipAt(data, i);
     if (p.mean == null) return;
     const hh = p.time.slice(11, 16);
-    tip.textContent = `${hh} · ${p.mean} kn · raf. ${p.gust} · ${p.cardinal} ${p.dir}°`;
+    // small arrow following the wind (downwind, dir+180), like the live-wind card
+    const arrow = p.dir == null ? ""
+      : `<span class="mg-arrow-inline" style="transform:rotate(${(p.dir + 180) % 360}deg)">↑</span> `;
+    tip.innerHTML = `${hh} · ${p.mean} kn · raf. ${p.gust} · ${arrow}${p.cardinal} ${p.dir}°`;
     tip.style.left = `${frac * 100}%`;
     tip.style.top = "6px";
     tip.hidden = false;
