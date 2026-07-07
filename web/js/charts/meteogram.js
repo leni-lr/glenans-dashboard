@@ -46,9 +46,11 @@ export function bindMeteogramTooltip(wrap, data) {
     const arrow = p.dir == null ? ""
       : `<span class="mg-arrow-inline" style="transform:rotate(${(p.dir + 180) % 360}deg)">↑</span> `;
     tip.innerHTML = `${hh} · ${p.mean} kn · raf. ${p.gust} · ${arrow}${p.cardinal} ${p.dir}°`;
-    tip.style.left = `${frac * 100}%`;
     tip.style.top = "6px";
     tip.hidden = false;
+    // clamp so the centred box (translateX -50%) stays inside the chart at the edges
+    const w = rect.width, tw = tip.offsetWidth;
+    tip.style.left = `${Math.max(tw / 2 + 2, Math.min(w - tw / 2 - 2, frac * w))}px`;
   };
   wrap.addEventListener("pointerdown", (e) => {
     dragging = true;
