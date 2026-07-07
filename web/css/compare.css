@@ -30,8 +30,9 @@
 .cmp-swatch--0 { background: var(--cmp-0); } .cmp-swatch--1 { background: var(--cmp-1); }
 .cmp-swatch--2 { background: var(--cmp-2); } .cmp-swatch--3 { background: var(--cmp-3); }
 .cmp-swatch--4 { background: var(--cmp-4); }
-.cmp-grid { display: grid; grid-template-columns: 1fr; gap: 12px; margin-top: 8px; }
-@media (min-width: 480px) { .cmp-grid { grid-template-columns: 1fr 1fr; } }
+.cmp-grid { display: grid; grid-template-columns: 1fr; gap: 26px; margin-top: 12px; }
+@media (min-width: 480px) { .cmp-grid { gap: 20px 16px; grid-template-columns: 1fr 1fr; } }
 .cmp-cell { margin: 0; }
-.cmp-cell figcaption { font-size: 12px; color: var(--text-secondary); padding-bottom: 2px; }
+/* the caption + gap are the scroll-safe zones (charts use touch-action:none) */
+.cmp-cell figcaption { font-size: 12px; color: var(--text-secondary); padding: 4px 0; }
 .cmp-miss { font-size: 13px; color: var(--text-secondary); }
