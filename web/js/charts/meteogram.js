@@ -24,6 +24,41 @@ export function tooltipAt(data, i) {
   };
 }
 
+// DOM: attach a tap/slide tooltip to a chart wrapper. `data` is a normalized
+// forecast {times,speed,gust,dir}. Pointer capture + touch-action:none (CSS) let
+// a finger scrub across the hours with the box tracking it, instead of vanishing.
+export function bindMeteogramTooltip(wrap, data) {
+  if (!wrap || !data || !Array.isArray(data.times) || !data.times.length) return;
+  const tip = document.createElement("div");
+  tip.className = "mg-tip";
+  tip.hidden = true;
+  wrap.appendChild(tip);
+  let dragging = false;
+  const show = (clientX) => {
+    const rect = wrap.getBoundingClientRect();
+    if (!rect.width) return;
+    const frac = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+    const i = Math.round(frac * (data.times.length - 1));
+    const p = tooltipAt(data, i);
+    if (p.mean == null) return;
+    const hh = p.time.slice(11, 16);
+    tip.textContent = `${hh} · ${p.mean} kn · raf. ${p.gust} · ${p.cardinal} ${p.dir}°`;
+    tip.style.left = `${frac * 100}%`;
+    tip.style.top = "6px";
+    tip.hidden = false;
+  };
+  wrap.addEventListener("pointerdown", (e) => {
+    dragging = true;
+    try { wrap.setPointerCapture(e.pointerId); } catch { /* older browsers */ }
+    show(e.clientX);
+  });
+  wrap.addEventListener("pointermove", (e) => { if (dragging) show(e.clientX); });
+  const end = () => { dragging = false; };
+  wrap.addEventListener("pointerup", end);
+  wrap.addEventListener("pointercancel", end);
+  wrap.addEventListener("pointerleave", () => { if (!dragging) tip.hidden = true; });
+}
+
 // Inline-SVG meteogram. Colours/dashes are supplied by CSS classes (see
 // meteogram.css); this function emits geometry + classes only.
 export function meteogram(data, opts = {}) {

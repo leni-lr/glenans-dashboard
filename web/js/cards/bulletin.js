@@ -1,4 +1,5 @@
 import { fetchBMS } from "../sources/bms.js";
+import { translateText } from "../sources/translate.js";
 import { t } from "../i18n.js";
 import { mountCard, skeletonHTML, errorHTML } from "../card.js";
 import { escapeHTML } from "../util/html.js";
@@ -24,16 +25,16 @@ function reportSection(title, lines) {
   return `<div class="bms-fc-title">${escapeHTML(title)}</div>${body}`;
 }
 
-// Today's daytime report: the "journée" forecast for the current day (full report
-// — vent/mer/houle/temps/visi), or the day's observations once they replace it
-// later on. The French-date match keeps it to today, not tomorrow's échéance.
-function todayReportHTML(d) {
+// Today's daytime report data: the "journée" forecast for the current day (full
+// report — vent/mer/houle/temps/visi), or the day's observations once they replace
+// it later on. The French-date match keeps it to today, not tomorrow's échéance.
+function pickTodayReport(d) {
   const today = new Date().toLocaleDateString("fr-FR", { day: "numeric", month: "long" });
   const fc = (d.forecasts || []).find((f) => /journée/i.test(f.title) && f.title.includes(today));
-  if (fc) return reportSection(fc.title, [fc.vent, fc.mer, fc.houle, fc.temps, fc.visi]);
+  if (fc) return { title: fc.title, lines: [fc.vent, fc.mer, fc.houle, fc.temps, fc.visi].filter(Boolean) };
   const obs = d.observation;
-  if (obs && obs.title.includes(today)) return reportSection(obs.title, [obs.text]);
-  return "";
+  if (obs && obs.title.includes(today)) return { title: obs.title, lines: [obs.text] };
+  return null;
 }
 
 function setAlertStrip(warning, special) {
@@ -48,9 +49,21 @@ export async function renderBulletin(state) {
   mountCard(CARD_ID, plainTitle(lang) + skeletonHTML(3));
   try {
     const d = await fetchBMS(state.settings.zone);
-    const extra = todayReportHTML(d);
+    let situation = d.situation;
+    const report = pickTodayReport(d);
+    let rTitle = report ? report.title : "";
+    let rLines = report ? report.lines : [];
+    // Bulletin text is French source; translate only for the English UI (Worker
+    // proxy, with fallback to the original on failure).
+    if (lang === "en") {
+      const [s, tt, ...ll] = await Promise.all([
+        translateText(situation), translateText(rTitle), ...rLines.map((l) => translateText(l)),
+      ]);
+      situation = s; rTitle = tt; rLines = ll;
+    }
+    const extra = report ? reportSection(rTitle, rLines) : "";
     const body = titleRow(lang, d.warning) +
-      `<p class="bms-text" data-clamped="true">${escapeHTML(d.situation)}</p>` +
+      `<p class="bms-text" data-clamped="true">${escapeHTML(situation)}</p>` +
       (extra ? `<div class="bms-extra" hidden>${extra}</div>` : "") +
       `<button class="linkbtn bms-more" data-act="more">${t(lang, "see_more")}</button>`;
     mountCard(CARD_ID, body, { fade: true });

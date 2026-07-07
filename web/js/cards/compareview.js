@@ -1,6 +1,6 @@
 import { fetchAllModels } from "../sources/compare.js";
 import { overlayChart, trimTrailingNulls, sliceData } from "../charts/compare.js";
-import { meteogram } from "../charts/meteogram.js";
+import { meteogram, bindMeteogramTooltip } from "../charts/meteogram.js";
 import { t } from "../i18n.js";
 import { escapeHTML } from "../util/html.js";
 
@@ -28,8 +28,8 @@ function legend(series) {
 function grid(series, lang, r) {
   return `<div class="cmp-grid">` + series.map((s) => {
     const body = s.data
-      ? meteogram(trimTrailingNulls(sliceData(s.data, r.start, r.end)),
-          { lang, range: r.key === "week" ? "7d" : "24h", nowTime: new Date().toISOString() })
+      ? `<div class="mg-wrap">${meteogram(trimTrailingNulls(sliceData(s.data, r.start, r.end)),
+          { lang, range: r.key === "week" ? "7d" : "24h", nowTime: new Date().toISOString() })}</div>`
       : `<p class="cmp-miss">${t(lang, "source_down")}</p>`;
     return `<figure class="cmp-cell"><figcaption>${escapeHTML(s.label)}</figcaption>${body}</figure>`;
   }).join("") + `</div>`;
@@ -47,6 +47,12 @@ function renderBody(host, series, rangeKey, lang) {
   body.innerHTML = (lines.length
     ? `<div class="cmp-overlay">${overlayChart(lines, { lang, range: r.key })}</div>${legend(series)}`
     : `<p class="cmp-miss">${t(lang, "source_down")}</p>`) + grid(series, lang, r);
+
+  // slide tooltip on each per-model chart (cells with data, in series order)
+  const wraps = body.querySelectorAll(".cmp-cell .mg-wrap");
+  series.filter((s) => s.data).forEach((s, i) => {
+    if (wraps[i]) bindMeteogramTooltip(wraps[i], trimTrailingNulls(sliceData(s.data, r.start, r.end)));
+  });
 }
 
 export async function openCompareView(settings) {

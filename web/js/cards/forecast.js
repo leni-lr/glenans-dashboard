@@ -1,5 +1,5 @@
 import { fetchForecast, MODELS } from "../sources/openmeteo.js";
-import { meteogram, tooltipAt } from "../charts/meteogram.js";
+import { meteogram, bindMeteogramTooltip } from "../charts/meteogram.js";
 import { openCompareView } from "./compareview.js";
 import { t } from "../i18n.js";
 import { mountCard, skeletonHTML, errorHTML } from "../card.js";
@@ -77,29 +77,8 @@ function bindInteractions(state) {
     });
   });
 
-  // tap tooltip over the chart
-  const wrap = card.querySelector(".mg-wrap");
-  if (!wrap || !state.data) return;
-  const tip = document.createElement("div");
-  tip.className = "mg-tip";
-  tip.hidden = true;
-  wrap.appendChild(tip);
-
-  const show = (clientX) => {
-    const rect = wrap.getBoundingClientRect();
-    if (!rect.width) return;
-    const frac = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
-    const i = Math.round(frac * (state.data.times.length - 1));
-    const p = tooltipAt(state.data, i);
-    const hh = p.time.slice(11, 16);
-    tip.textContent = `${hh} · ${p.mean} kn · raf. ${p.gust} · ${p.cardinal} ${p.dir}°`;
-    tip.style.left = `${frac * 100}%`;
-    tip.style.top = "6px";
-    tip.hidden = false;
-  };
-  wrap.addEventListener("pointerdown", (e) => show(e.clientX));
-  wrap.addEventListener("pointermove", (e) => { if (e.pressure > 0 || e.buttons) show(e.clientX); });
-  wrap.addEventListener("pointerleave", () => { tip.hidden = true; });
+  // tap/slide tooltip over the chart
+  bindMeteogramTooltip(card.querySelector(".mg-wrap"), state.data);
 }
 
 // DOM: create state, render once, return handle for app + interactions.

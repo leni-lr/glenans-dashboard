@@ -24,8 +24,8 @@
 .mg-legend .leg-now  { color: var(--now); }
 .mg-legend .leg-cmp  { color: var(--compare); }
 
-/* tap tooltip */
-.mg-wrap { position: relative; }
+/* tap/slide tooltip — touch-action:none lets a finger scrub without scrolling */
+.mg-wrap { position: relative; touch-action: none; }
 .mg-tip {
   position: absolute; pointer-events: none; transform: translate(-50%, -100%);
   background: var(--card-bg); border: 0.5px solid var(--card-border);
