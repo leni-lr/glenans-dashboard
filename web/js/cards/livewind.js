@@ -18,7 +18,7 @@ function bodyHTML(lang, d) {
   const staleCls = age >= STALE_MIN ? " lw-stamp--stale" : "";
   const dirLine = d.dir == null ? "" :
     `<div class="lw-dir">` +
-      `<span class="lw-arrow" style="transform:rotate(${d.dir}deg)">↑</span>` +
+      `<span class="lw-arrow" style="transform:rotate(${(d.dir + 180) % 360}deg)">↑</span>` +
       `<span>${degToCardinal(d.dir)} ${d.dir}°</span>` +
     `</div>`;
   return plainTitle(lang) +
