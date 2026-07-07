@@ -1,3 +1,6 @@
 node_modules/
 .DS_Store
 *.log
+
+# local wrangler dev cache/state
+worker/.wrangler/
