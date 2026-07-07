@@ -1,19 +1,22 @@
-import { fetchLiveWind } from "../sources/livewind.js";
+import { fetchLiveWind, stationLabel } from "../sources/livewind.js";
 import { degToCardinal } from "../charts/meteogram.js";
 import { minutesAgo } from "../util/time.js";
 import { t } from "../i18n.js";
 import { mountCard, skeletonHTML, errorHTML } from "../card.js";
+import { escapeHTML } from "../util/html.js";
 
 const CARD_ID = "card-livewind";
 const SOURCE = "https://www.windmorbihan.com/Drenec";
 const STALE_MIN = 20;
 const REFRESH_MS = 5 * 60 * 1000;
 
-function plainTitle(lang) {
-  return `<div class="card__title-row"><span class="card__title">${t(lang, "livewind_title")}</span></div>`;
+// title carries the anemometer/station name (e.g. "Vent actuel · Drénec")
+function plainTitle(lang, station) {
+  const suffix = station ? ` · ${escapeHTML(station)}` : "";
+  return `<div class="card__title-row"><span class="card__title">${t(lang, "livewind_title")}${suffix}</span></div>`;
 }
 
-function bodyHTML(lang, d) {
+function bodyHTML(lang, d, station) {
   const age = minutesAgo(d.ts);
   const staleCls = age >= STALE_MIN ? " lw-stamp--stale" : "";
   const dirLine = d.dir == null ? "" :
@@ -21,7 +24,7 @@ function bodyHTML(lang, d) {
       `<span class="lw-arrow" style="transform:rotate(${(d.dir + 180) % 360}deg)">↑</span>` +
       `<span>${degToCardinal(d.dir)} ${d.dir}°</span>` +
     `</div>`;
-  return plainTitle(lang) +
+  return plainTitle(lang, station) +
     `<div class="lw-main">` +
       `<span class="lw-speed">${d.mean}</span><span class="lw-unit">kn</span>` +
       `<span class="lw-gust">${t(lang, "livewind_gust")} ${d.gust}</span>` +
@@ -32,12 +35,13 @@ function bodyHTML(lang, d) {
 
 export async function renderLiveWind(state) {
   const { lang } = state.settings;
-  mountCard(CARD_ID, plainTitle(lang) + skeletonHTML(2));
+  const station = stationLabel(state.settings.station);
+  mountCard(CARD_ID, plainTitle(lang, station) + skeletonHTML(2));
   try {
     const d = await fetchLiveWind(state.settings.station);
-    mountCard(CARD_ID, bodyHTML(lang, d), { fade: true });
+    mountCard(CARD_ID, bodyHTML(lang, d, station), { fade: true });
   } catch {
-    mountCard(CARD_ID, plainTitle(lang) + errorHTML(lang, SOURCE));
+    mountCard(CARD_ID, plainTitle(lang, station) + errorHTML(lang, SOURCE));
   }
 }
 
