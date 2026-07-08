@@ -1,6 +1,7 @@
 .bms-pill { font-size: 11px; padding: 2px 8px; border-radius: 999px; font-weight: 600; }
 .bms-pill--none { background: var(--bms-none-bg); color: var(--bms-none-text); }
 .bms-pill--active { background: var(--alert-bg); color: var(--alert-text); }
+.bms-area { font-size: 12px; color: var(--text-secondary); margin: 2px 0 2px; }
 .bms-text { font-size: 14px; line-height: 1.5; color: var(--text-body); white-space: pre-line; margin-top: 6px; }
 .bms-text[data-clamped="true"] {
   display: -webkit-box; -webkit-line-clamp: 4; -webkit-box-orient: vertical; overflow: hidden;

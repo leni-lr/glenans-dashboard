@@ -1,5 +1,6 @@
 import { fetchBMS } from "../sources/bms.js";
 import { translateText } from "../sources/translate.js";
+import { BMS_ZONES } from "../data/bmszones.js";
 import { t } from "../i18n.js";
 import { mountCard, skeletonHTML, errorHTML } from "../card.js";
 import { escapeHTML } from "../util/html.js";
@@ -17,6 +18,11 @@ function plainTitle(lang) {
 }
 function titleRow(lang, warning) {
   return `<div class="card__title-row"><span class="card__title">${t(lang, "bulletin_title")}</span>${pill(lang, warning)}</div>`;
+}
+// the coastal zone the bulletin covers, shown under the title
+function areaLine(zone) {
+  const z = BMS_ZONES.find((x) => x.code === zone);
+  return z ? `<div class="bms-area">${escapeHTML(z.title)}</div>` : "";
 }
 
 // The amber alert strip is a global element; the bulletin card owns it.
@@ -46,7 +52,8 @@ function setAlertStrip(warning, special) {
 
 export async function renderBulletin(state) {
   const { lang } = state.settings;
-  mountCard(CARD_ID, plainTitle(lang) + skeletonHTML(3));
+  const area = areaLine(state.settings.zone);
+  mountCard(CARD_ID, plainTitle(lang) + area + skeletonHTML(3));
   try {
     const d = await fetchBMS(state.settings.zone);
     let situation = d.situation;
@@ -62,7 +69,7 @@ export async function renderBulletin(state) {
       situation = s; rTitle = tt; rLines = ll;
     }
     const extra = report ? reportSection(rTitle, rLines) : "";
-    const body = titleRow(lang, d.warning) +
+    const body = titleRow(lang, d.warning) + area +
       `<p class="bms-text" data-clamped="true">${escapeHTML(situation)}</p>` +
       (extra ? `<div class="bms-extra" hidden>${extra}</div>` : "") +
       `<button class="linkbtn bms-more" data-act="more">${t(lang, "see_more")}</button>`;
@@ -70,7 +77,7 @@ export async function renderBulletin(state) {
     setAlertStrip(d.warning, d.special);
     bindMore(state);
   } catch {
-    mountCard(CARD_ID, plainTitle(lang) + errorHTML(lang, SOURCE));
+    mountCard(CARD_ID, plainTitle(lang) + area + errorHTML(lang, SOURCE));
     setAlertStrip(false, "");
   }
 }
