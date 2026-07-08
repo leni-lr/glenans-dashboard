@@ -1,10 +1,15 @@
 import { searchPlaces } from "../sources/geocode.js";
 import { PORTS } from "../data/ports.js";
 import { LOCAL_SPOTS } from "../data/spots.js";
+import { haversineKm } from "../util/geo.js";
 import { t } from "../i18n.js";
 import { escapeHTML } from "../util/html.js";
 
 const norm = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+// A geocoded result within this of a same-named shown port is the same place
+// (large ports sit several km from their town centroid). Safe to be generous:
+// dedup only ever compares results that matched the same query.
+const DEDUP_KM = 15;
 
 // Location search modal. Calls onPick({lat,lon,place}) when a result is chosen.
 // A typed query matches maree.info PORTS and the local gazetteer (for exact tides)
@@ -49,13 +54,13 @@ export function openLocationSearch(settings, onPick) {
     const local = LOCAL_SPOTS.filter((s) => norm(s.label).includes(nq));
     const ports = PORTS.filter((p) => norm(p.label).includes(nq)).slice(0, 8)
       .map((p) => ({ label: p.label, lat: p.lat, lon: p.lon }));
-    const named = [...local, ...ports].map((x) => norm(x.label));
+    const shown = [...local, ...ports];
     const mine = ++seq;
     const geo = await searchPlaces(query);
     if (mine !== seq) return; // a newer keystroke won
-    // drop a geocoding result if a port/local entry already covers that name
-    const geoDedup = geo.filter((g) => !named.some((n) => n.includes(norm(g.name))));
-    render([...local, ...ports, ...geoDedup]);
+    // drop a geocoding result that coincides with a port/local entry already shown
+    const geoDedup = geo.filter((g) => !shown.some((s) => haversineKm(g.lat, g.lon, s.lat, s.lon) < DEDUP_KM));
+    render([...shown, ...geoDedup]);
   };
 
   let timer = null;
