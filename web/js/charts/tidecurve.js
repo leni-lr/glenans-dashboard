@@ -37,7 +37,10 @@ export function tideCurve(model, opts = {}) {
   const L = 10, R = 10, B = 20, TOP = 26;
   const YMAX = 5.4; // metres, headroom above typical Glénan HW ~4.8
   const pts = model.extremes;
-  const x = (th) => L + (th / 24) * (W - L - R);
+  // x domain spans 23:00 (prev) → 01:00 (next) = th ∈ [-1, 25], a 26 h window, so
+  // the "now" marker near midnight has margin and stays readable. The curve/labels
+  // still only cover today (0–24); the ±1 h edges are just breathing room.
+  const x = (th) => L + ((th + 1) / 26) * (W - L - R);
   const y = (h) => TOP + (H - B - TOP) * (1 - h / YMAX);
   const f = (n) => n.toFixed(1);
 
@@ -53,15 +56,10 @@ export function tideCurve(model, opts = {}) {
   s += `<path class="tc-area" d="${area}"/><path class="tc-line" d="${line}"/>`;
 
   for (const e of pts) {
-    if (e.th <= 0 || e.th >= 24) {
-      if (e.th > -1 && e.th < 25) {
-        s += `<text class="tc-label-sub" x="${f(x(Math.min(24, Math.max(0, e.th))))}" y="${f(y(e.h) - 6)}" text-anchor="middle">${e.time}</text>`;
-      }
-      continue;
-    }
+    if (e.th <= 0 || e.th >= 24) continue; // only today's HW/LW are labelled
     const tag = e.type === "high" ? "PM" : "BM";
-    // extra clearance at high water so the "now" dot/ring doesn't cover the label
-    const yTop = e.type === "high" ? y(e.h) - 22 : y(e.h) - 16;
+    // extra clearance so the "now" dot/ring doesn't cover the label (both HW and LW)
+    const yTop = e.type === "high" ? y(e.h) - 22 : y(e.h) - 20;
     s += `<text class="tc-label-main" x="${f(x(e.th))}" y="${f(yTop)}" text-anchor="middle">${tag} ${e.time}</text>`;
     s += `<text class="tc-label-sub" x="${f(x(e.th))}" y="${f(yTop + 11)}" text-anchor="middle">${e.h.toFixed(1).replace(".", ",")} m</text>`;
   }
