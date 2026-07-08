@@ -39,6 +39,8 @@ export const DICT = {
   close:            { fr: "Fermer",                en: "Close" },
   loading:          { fr: "Chargement…",           en: "Loading…" },
   isobar_title:     { fr: "Isobares · Met Office", en: "Isobars · Met Office" },
+  chart_colour:     { fr: "Couleur",              en: "Colour" },
+  chart_bw:         { fr: "N&B",                  en: "B&W" },
   source_down:      { fr: "Source indisponible — ouvrir sur le site ↗",
                       en: "Source unavailable — open on the site ↗" },
   refresh:          { fr: "Rafraîchir",            en: "Refresh" },

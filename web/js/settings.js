@@ -10,6 +10,7 @@ export const DEFAULTS = {
   stationLabel: "Drénec",
   port: "94",
   zone: "BMSCOTE-01-04",
+  chartVariant: "bw",
 };
 
 // Pure: DEFAULTS overlaid with only the known keys from `stored`.

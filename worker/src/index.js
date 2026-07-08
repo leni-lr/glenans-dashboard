@@ -1,5 +1,5 @@
 import { parseTide } from "./tide.js";
-import { parseLatestRun, chartGifURL, CHART_STEPS, previousRun } from "./chart.js";
+import { parseLatestRun, chartGifURL, chartSteps, previousRun } from "./chart.js";
 import { parseLiveWind, liveWindURL } from "./livewind.js";
 import { parseBMS, bmsURL, tokenFromSetCookie, MF_HOME } from "./bms.js";
 
@@ -37,10 +37,10 @@ async function handleTide(url, request, ctx) {
 
 // Resolve to the latest run whose chart images are actually published: the page
 // may list a run (00Z) before its GIFs exist, so probe step 0 and step back 12 h.
-async function resolveRun(parsed) {
+async function resolveRun(parsed, variant) {
   let run = parsed;
   for (let i = 0; i < 3; i++) {
-    const probe = await fetch(chartGifURL(run, 0), { headers: { "User-Agent": UA } });
+    const probe = await fetch(chartGifURL(run, 0, variant), { headers: { "User-Agent": UA } });
     if (probe.ok) { try { await probe.body?.cancel(); } catch {} return run; }
     run = previousRun(run);
   }
@@ -48,25 +48,27 @@ async function resolveRun(parsed) {
 }
 
 async function handleChart(url, request, ctx) {
+  const variant = url.searchParams.get("variant") === "bw" ? "bw" : "colour";
+  const steps = chartSteps(variant);
   const stepParam = url.searchParams.get("step");
   const cache = caches.default;
-  const cacheKey = new Request(`https://chart.cache/${stepParam ?? "manifest"}`, request);
+  const cacheKey = new Request(`https://chart.cache/${variant}/${stepParam ?? "manifest"}`, request);
   const hit = await cache.match(cacheKey);
   if (hit) return hit;
   try {
     const page = await fetch(METOFFICE_PAGE, { headers: { "User-Agent": UA } });
     if (!page.ok) return json({ error: `metoffice HTTP ${page.status}` }, 502);
-    const run = await resolveRun(parseLatestRun(await page.text()));
+    const run = await resolveRun(parseLatestRun(await page.text()), variant);
 
     if (stepParam == null) {
-      const out = json({ run, steps: CHART_STEPS }, 200, { "Cache-Control": "public, max-age=3600" });
+      const out = json({ run, steps }, 200, { "Cache-Control": "public, max-age=3600" });
       ctx.waitUntil(cache.put(cacheKey, out.clone()));
       return out;
     }
 
     const step = Number(stepParam);
-    if (!CHART_STEPS.includes(step)) return json({ error: `invalid step ${stepParam}` }, 400);
-    const gif = await fetch(chartGifURL(run, step), { headers: { "User-Agent": UA } });
+    if (!steps.includes(step)) return json({ error: `invalid step ${stepParam}` }, 400);
+    const gif = await fetch(chartGifURL(run, step, variant), { headers: { "User-Agent": UA } });
     if (!gif.ok) return json({ error: `chart HTTP ${gif.status}` }, 502);
     const out = new Response(gif.body, {
       status: 200,
