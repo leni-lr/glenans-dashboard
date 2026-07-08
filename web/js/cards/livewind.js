@@ -1,4 +1,4 @@
-import { fetchLiveWind, stationLabel } from "../sources/livewind.js";
+import { fetchLiveWind } from "../sources/livewind.js";
 import { degToCardinal } from "../charts/meteogram.js";
 import { minutesAgo } from "../util/time.js";
 import { t } from "../i18n.js";
@@ -34,11 +34,14 @@ function bodyHTML(lang, d, station) {
 }
 
 export async function renderLiveWind(state) {
-  const { lang } = state.settings;
-  const station = stationLabel(state.settings.station);
+  const { lang, stationNid, stationLabel: station } = state.settings;
+  if (stationNid == null) {
+    mountCard(CARD_ID, plainTitle(lang, "") + `<p class="lw-none">${t(lang, "livewind_none")}</p>`);
+    return;
+  }
   mountCard(CARD_ID, plainTitle(lang, station) + skeletonHTML(2));
   try {
-    const d = await fetchLiveWind(state.settings.station);
+    const d = await fetchLiveWind(stationNid);
     mountCard(CARD_ID, bodyHTML(lang, d, station), { fade: true });
   } catch {
     mountCard(CARD_ID, plainTitle(lang, station) + errorHTML(lang, SOURCE));
