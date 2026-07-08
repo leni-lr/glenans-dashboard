@@ -33,4 +33,4 @@
   white-space: nowrap;
 }
 :root[data-theme="dark"] .mg-tip { background: var(--navy-800); border-color: var(--navy-600); }
-.mg-arrow-inline { display: inline-block; color: var(--accent); }
+.mg-arrow-inline { display: inline-block; color: var(--accent); font-size: 16px; font-weight: 700; line-height: 1; vertical-align: -2px; }

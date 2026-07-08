@@ -64,10 +64,13 @@ export function tideCurve(model, opts = {}) {
     s += `<text class="tc-label-sub" x="${f(x(e.th))}" y="${f(yTop + 11)}" text-anchor="middle">${e.h.toFixed(1).replace(".", ",")} m</text>`;
   }
 
-  const nx = f(x(model.nowTh)), ny = f(y(tideHeightAt(pts, model.nowTh)));
+  const nowHeight = tideHeightAt(pts, model.nowTh);
+  const nx = f(x(model.nowTh)), ny = f(y(nowHeight));
   s += `<circle class="tc-now-dot" cx="${nx}" cy="${ny}" r="5"/><circle class="tc-now-ring" cx="${nx}" cy="${ny}" r="8.5"/>`;
-  const nowH = String(Math.floor(model.nowTh)).padStart(2, "0") + ":" + String(Math.round((model.nowTh % 1) * 60)).padStart(2, "0");
-  s += `<text class="tc-now-label" x="${f(x(model.nowTh) - 12)}" y="${f(y(tideHeightAt(pts, model.nowTh)) - 15)}" text-anchor="end">${nowH} ${model.rising ? "↗" : "↘"}</text>`;
+  // current height (m) below the curve, so it never clashes with the PM/BM labels above
+  const nowM = nowHeight.toFixed(1).replace(".", ",");
+  const nyLabel = Math.min(y(nowHeight) + 18, baseY - 3);
+  s += `<text class="tc-now-label" x="${nx}" y="${f(nyLabel)}" text-anchor="middle">${nowM} m ${model.rising ? "↗" : "↘"}</text>`;
 
   for (const th of [0, 6, 12, 18, 24]) {
     s += `<text class="tc-axis" x="${f(x(th))}" y="${H - 3}" text-anchor="middle">${th}h</text>`;
