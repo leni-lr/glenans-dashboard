@@ -7,21 +7,18 @@ import { mountCard, skeletonHTML, errorHTML } from "../card.js";
 const CARD_ID = "card-forecast";
 const SOURCE = "https://open-meteo.com/";
 
-// 24 h uses AROME HD (high-res, short range); 7 j uses ECMWF (AROME has no data
-// past ~2.5 days, which is why 7 j went blank on AROME).
-function modelFor(range) {
-  return range === "7d" ? MODELS.ecmwf : MODELS.arome;
-}
-function chipFor(range) {
-  return range === "7d" ? "ECMWF" : "AROME 1.3";
-}
+// 24 h uses AROME HD (high-res, France-only, short range); 7 j uses ECMWF (global,
+// and AROME has no data past ~2.5 days). Outside AROME's domain the 24 h view
+// falls back to ECMWF too — see renderForecast.
+const hasData = (d) => Array.isArray(d.speed) && d.speed.some((v) => Number.isFinite(v));
 
-// Pure: the title row with model chip + control buttons.
-export function forecastTitleRow(lang, { range }) {
+// Pure: the title row with model chip + control buttons. `chip` reflects the
+// model actually used (set on the state by renderForecast).
+export function forecastTitleRow(lang, { chip, range }) {
   return `<div class="card__title-row">` +
     `<span class="card__title">${t(lang, "forecast_title")}</span>` +
     `<span class="card__controls">` +
-      `<span class="chip">${chipFor(range)}</span> ` +
+      `<span class="chip">${chip ?? "AROME 1.3"}</span> ` +
       `<button class="linkbtn" data-act="compare">${t(lang, "compare")}</button> ` +
       `<button class="linkbtn" data-act="range" aria-pressed="${range === "7d"}">${t(lang, "seven_days")}</button>` +
     `</span></div>`;
@@ -44,12 +41,25 @@ function bodyHTML(lang, state, svg) {
 // DOM: fetch + render (or error). Never throws out of the card.
 export async function renderForecast(state) {
   const { lang } = state.settings;
+  const { lat, lon } = state.settings;
+  const is7d = state.range === "7d";
+  state.chip = is7d ? "ECMWF" : "AROME 1.3";
   mountCard(CARD_ID, forecastTitleRow(lang, state) + skeletonHTML(0, true));
   try {
-    const days = state.range === "7d" ? 7 : 1;
-    state.data = await fetchForecast({
-      lat: state.settings.lat, lon: state.settings.lon, model: modelFor(state.range), days,
-    });
+    const days = is7d ? 7 : 1;
+    let data;
+    if (is7d) {
+      data = await fetchForecast({ lat, lon, model: MODELS.ecmwf, days });
+    } else {
+      // AROME is France-only; outside its domain it errors or returns no data —
+      // fall back to a global model (ECMWF) in either case.
+      data = await fetchForecast({ lat, lon, model: MODELS.arome, days }).catch(() => null);
+      if (!data || !hasData(data)) {
+        state.chip = "ECMWF";
+        data = await fetchForecast({ lat, lon, model: MODELS.ecmwf, days });
+      }
+    }
+    state.data = data;
     const svg = meteogram(state.data, {
       nowTime: new Date().toISOString(),
       range: state.range,

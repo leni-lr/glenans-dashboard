@@ -8,3 +8,5 @@
 .tc-now-label { fill: var(--now); font-size: 11px; font-weight: 500; }
 
 .chip--coef { background: var(--coef-bg); color: var(--coef-text); }
+
+.tc-none { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }

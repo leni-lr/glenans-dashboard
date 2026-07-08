@@ -18,6 +18,8 @@ export const DICT = {
   location_none:    { fr: "Aucun résultat",        en: "No results" },
   tide_title:       { fr: "Marée",                 en: "Tide" },
   tide_coef:        { fr: "coef",                  en: "coef" },
+  tide_none:        { fr: "Pas de port de marée à proximité.",
+                      en: "No nearby tide port." },
   bulletin_title:   { fr: "Situation générale",    en: "General situation" },
   bms_none:         { fr: "BMS : aucun",           en: "BMS: none" },
   bms_active:       { fr: "BMS en cours",          en: "BMS in effect" },

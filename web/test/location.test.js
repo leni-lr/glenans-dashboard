@@ -13,3 +13,10 @@ test("a far-inland point has no local wind station", () => {
   const r = resolveLocation({ lat: 45.76, lon: 4.83 }); // Lyon
   assert.equal(r.stationNid, null, "no windmorbihan station within coverage");
 });
+
+test("a Mediterranean point (Corsica) has no Atlantic tide port, right zone", () => {
+  const r = resolveLocation({ lat: 41.74, lon: 9.30 }); // Conca, Corse-du-Sud
+  assert.equal(r.port, null, "no maree.info Atlantic port within range");
+  assert.equal(r.stationNid, null, "no windmorbihan station");
+  assert.equal(r.zone, "BMSCOTE-02-04", "Corsica bulletin zone");
+});

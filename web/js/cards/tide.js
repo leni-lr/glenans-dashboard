@@ -31,6 +31,10 @@ function toModel(data) {
 
 export async function renderTide(state) {
   const { lang } = state.settings;
+  if (state.settings.port == null) {
+    mountCard(CARD_ID, plainTitle(lang) + `<p class="tc-none">${t(lang, "tide_none")}</p>`);
+    return;
+  }
   mountCard(CARD_ID, plainTitle(lang) + skeletonHTML(0, true));
   try {
     const data = await fetchTide(state.settings.port);

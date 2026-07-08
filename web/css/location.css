@@ -1,4 +1,4 @@
-.app-header__place { background: transparent; border: none; cursor: pointer; font: inherit; text-align: left; }
+.app-header__place { background: transparent; border: none; cursor: pointer; font: inherit; text-align: left; padding: 0; }
 
 .loc-modal {
   position: fixed; inset: 0; background: rgba(4, 44, 83, 0.55);
