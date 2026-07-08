@@ -35,8 +35,12 @@ export function withLeadingExtreme(pts) {
 export function tideCurve(model, opts = {}) {
   const W = opts.width ?? 300, H = opts.height ?? 118;
   const L = 10, R = 10, B = 20, TOP = 26;
-  const YMAX = 5.4; // metres, headroom above typical Glénan HW ~4.8
   const pts = model.extremes;
+  // y-scale adapts to the day's range: ~0.6 m headroom above the highest water,
+  // floored at 5.4 m (Glénan) so small-range days still look right. Big-range
+  // spots (Lézardrieux/Paimpol, HW ~11 m) no longer run off the top.
+  const maxH = pts.reduce((m, p) => Math.max(m, p.h), 0);
+  const YMAX = Math.max(5.4, maxH + 0.6);
   // x domain spans 23:00 (prev) → 01:00 (next) = th ∈ [-1, 25], a 26 h window, so
   // the "now" marker near midnight has margin and stays readable. The curve/labels
   // still only cover today (0–24); the ±1 h edges are just breathing room.
