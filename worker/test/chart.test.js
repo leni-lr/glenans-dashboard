@@ -14,14 +14,10 @@ test("parseLatestRun throws when absent", () => {
   assert.throws(() => parseLatestRun("<html>nope</html>"));
 });
 
-test("chartGifURL builds the colour URL with padded step", () => {
+test("chartGifURL builds the colour URL (run-hour-aware) with padded step", () => {
   assert.equal(chartGifURL("2026-07-05T1200", 0),
     "https://data.consumer-digital.api.metoffice.gov.uk/v1/surface-pressure/colour/2026-07-05T1200/FSXX12T_00.gif");
-  assert.equal(chartGifURL("2026-07-05T1200", 120).endsWith("FSXX12T_120.gif"), true);
-});
-
-test("CHART_STEPS covers analysis through T+120", () => {
-  assert.deepEqual(CHART_STEPS, [0, 12, 24, 36, 48, 60, 72, 96, 120]);
+  assert.equal(chartGifURL("2026-07-08T0000", 24).endsWith("colour/2026-07-08T0000/FSXX00T_24.gif"), true);
 });
 
 test("chartGifURL builds the bw URL (different scheme, stops at T+84)", () => {
@@ -32,9 +28,9 @@ test("chartGifURL builds the bw URL (different scheme, stops at T+84)", () => {
   assert.equal(chartGifURL("2026-07-08T1200", 84, "bw").endsWith("1200_MEDIUM_RANGE_FC084.gif"), true);
 });
 
-test("chartSteps: bw stops at T+84, colour goes to T+120", () => {
+test("chartSteps: bw to T+84, colour to T+72 (aligned on the shared 00Z run)", () => {
   assert.deepEqual(chartSteps("bw"), [0, 12, 24, 36, 48, 60, 72, 84]);
-  assert.deepEqual(chartSteps("colour"), [0, 12, 24, 36, 48, 60, 72, 96, 120]);
+  assert.deepEqual(chartSteps("colour"), [0, 12, 24, 36, 48, 60, 72]);
 });
 
 test("previousRun steps back 12 h across the 00Z/12Z boundary and the day", () => {

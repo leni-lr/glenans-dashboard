@@ -78,6 +78,7 @@ function renderBody(state) {
 
 export async function renderIsobar(state) {
   const { lang } = state.settings;
+  state.idx = 0; // always (re)open on the T+0 analysis
   mountCard(CARD_ID, header(state) + skeletonHTML(0, true));
   bindVariant(state);
   try {
