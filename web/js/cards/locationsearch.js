@@ -5,7 +5,13 @@ import { haversineKm } from "../util/geo.js";
 import { t } from "../i18n.js";
 import { escapeHTML } from "../util/html.js";
 
-const norm = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+// Loose search key: strip accents, treat hyphens/punctuation as spaces, and
+// expand st/ste → saint/sainte, so "st armel" and "saint-armel" both match.
+const norm = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase()
+  .replace(/[^a-z0-9]+/g, " ")
+  .replace(/\bst\b/g, "saint")
+  .replace(/\bste\b/g, "sainte")
+  .trim();
 // A geocoded result within this of a same-named shown port is the same place
 // (large ports sit several km from their town centroid). Safe to be generous:
 // dedup only ever compares results that matched the same query.
