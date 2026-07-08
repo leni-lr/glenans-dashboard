@@ -7,6 +7,8 @@ import { mountIsobarCard } from "./cards/isobar.js";
 import { mountLiveWindCard } from "./cards/livewind.js";
 import { mountBulletinCard } from "./cards/bulletin.js";
 import { openInstallHelp } from "./cards/installhelp.js";
+import { openLocationSearch } from "./cards/locationsearch.js";
+import { resolveLocation } from "./location.js";
 
 // Source links used by each card's title / footer credits and later fallbacks.
 const SOURCES = {
@@ -112,6 +114,20 @@ function wireEvents() {
 
   const ih = document.getElementById("btn-install-help");
   if (ih) ih.addEventListener("click", () => openInstallHelp(state.settings.lang));
+
+  // Tap the header location → search a place → resolve nearest station/port/zone.
+  const place = document.getElementById("header-place");
+  if (place) place.addEventListener("click", () => openLocationSearch(state.settings, (loc) => {
+    const derived = resolveLocation(loc);
+    saveSetting("place", loc.place);
+    saveSetting("lat", loc.lat);
+    saveSetting("lon", loc.lon);
+    saveSetting("stationNid", derived.stationNid);
+    saveSetting("stationLabel", derived.stationLabel);
+    saveSetting("port", derived.port);
+    state.settings = saveSetting("zone", derived.zone);
+    renderAll();
+  }));
 
   // Manual refresh: re-stamp the header and refresh card data.
   document.getElementById("btn-refresh").addEventListener("click", () => {

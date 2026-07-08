@@ -6,3 +6,4 @@
 .lw-arrow { display: inline-block; font-size: 18px; color: var(--accent); }
 .lw-stamp { margin-top: 6px; font-size: 12px; color: var(--text-secondary); }
 .lw-stamp--stale { color: var(--danger); font-weight: 600; }
+.lw-none { font-size: 13px; color: var(--text-secondary); margin-top: 4px; }

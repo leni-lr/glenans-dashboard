@@ -1,0 +1,23 @@
+.app-header__place { background: transparent; border: none; cursor: pointer; font: inherit; text-align: left; }
+
+.loc-modal {
+  position: fixed; inset: 0; background: rgba(4, 44, 83, 0.55);
+  display: flex; align-items: flex-start; justify-content: center; z-index: 60; padding: 16px;
+}
+.loc-panel {
+  background: var(--card-bg); border: 0.5px solid var(--card-border); border-radius: var(--radius);
+  max-width: 460px; width: 100%; padding: 14px; margin-top: 40px;
+}
+.loc-head { display: flex; align-items: center; justify-content: space-between; }
+.loc-title { font-weight: 700; color: var(--text-primary); }
+.loc-input {
+  width: 100%; margin-top: 10px; padding: 10px; font: inherit; font-size: 15px;
+  border: 0.5px solid var(--card-border); border-radius: 8px; background: var(--page-bg); color: var(--text-primary);
+}
+.loc-results { list-style: none; margin: 8px 0 0; padding: 0; }
+.loc-results li { border-top: 0.5px solid var(--card-border); }
+.loc-item {
+  width: 100%; text-align: left; background: transparent; border: none; cursor: pointer;
+  font: inherit; font-size: 14px; color: var(--text-body); padding: 10px 4px; min-height: 44px;
+}
+.loc-empty { font-size: 13px; color: var(--text-secondary); padding: 10px 4px; }

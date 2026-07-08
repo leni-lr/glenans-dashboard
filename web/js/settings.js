@@ -3,12 +3,13 @@ const STORAGE_KEY = "glenans";
 export const DEFAULTS = {
   lang: "fr",
   themePref: "auto",
-  station: "Drenec",
-  port: "94",
-  zone: "BMSCOTE-01-04",
+  place: "Penfret · Glénan",
   lat: 47.716,
   lon: -3.950,
-  place: "Penfret · Glénan",
+  stationNid: 6,
+  stationLabel: "Drénec",
+  port: "94",
+  zone: "BMSCOTE-01-04",
 };
 
 // Pure: DEFAULTS overlaid with only the known keys from `stored`.
