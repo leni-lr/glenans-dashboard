@@ -1,8 +1,13 @@
 import { searchPlaces } from "../sources/geocode.js";
+import { LOCAL_SPOTS } from "../data/spots.js";
 import { t } from "../i18n.js";
 import { escapeHTML } from "../util/html.js";
 
+const norm = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
+
 // Location search modal. Calls onPick({lat,lon,place}) when a result is chosen.
+// Typed queries match a small local gazetteer (Glénan islets the geocoder
+// misses) first, then Open-Meteo geocoding results.
 export function openLocationSearch(settings, onPick) {
   const { lang } = settings;
   const host = document.createElement("div");
@@ -20,20 +25,29 @@ export function openLocationSearch(settings, onPick) {
 
   const input = host.querySelector(".loc-input");
   const list = host.querySelector(".loc-results");
-  let seq = 0;
-  const run = async (q) => {
-    const mine = ++seq;
-    const results = await searchPlaces(q);
-    if (mine !== seq) return; // a newer keystroke won
-    list.innerHTML = results.length
-      ? results.map((r, i) =>
+
+  const render = (items, empty = false) => {
+    list.innerHTML = items.length
+      ? items.map((r, i) =>
           `<li><button class="loc-item" data-i="${i}">${escapeHTML(r.label)}</button></li>`).join("")
-      : `<li class="loc-empty">${t(lang, "location_none")}</li>`;
+      : (empty ? "" : `<li class="loc-empty">${t(lang, "location_none")}</li>`);
     list.querySelectorAll(".loc-item").forEach((b) => b.addEventListener("click", () => {
-      const r = results[Number(b.getAttribute("data-i"))];
+      const r = items[Number(b.getAttribute("data-i"))];
       close();
       onPick({ lat: r.lat, lon: r.lon, place: r.label });
     }));
+  };
+
+  let seq = 0;
+  const run = async (q) => {
+    const query = q.trim();
+    if (query.length < 2) { render([], true); return; }
+    const nq = norm(query);
+    const local = LOCAL_SPOTS.filter((s) => norm(s.label).includes(nq));
+    const mine = ++seq;
+    const results = await searchPlaces(query);
+    if (mine !== seq) return; // a newer keystroke won
+    render([...local, ...results]);
   };
 
   let timer = null;
