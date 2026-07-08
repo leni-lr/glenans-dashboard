@@ -1,9 +1,7 @@
-// A small local gazetteer of coastal spots the Open-Meteo geocoder doesn't know
-// (e.g. the Glénan islets). These surface only when their name is typed in the
-// search — they are NOT favourites. (A personalisable favourites feature can
-// come later.)
+// A tiny local gazetteer for spots that are neither maree.info ports nor known to
+// the Open-Meteo geocoder. Penfret / Glénan are covered by the port list
+// ("Penfret (Iles de Glénan)", id 94), so only Drénec (a windmorbihan anemometer
+// on its own islet) remains. Surfaces only when typed. (Favourites can come later.)
 export const LOCAL_SPOTS = [
-  { label: "Penfret · Glénan",   lat: 47.716,   lon: -3.95 },
-  { label: "Drénec · Glénan",    lat: 47.71791, lon: -4.0088 },
-  { label: "Îles de Glénan",     lat: 47.72,    lon: -3.99 },
+  { label: "Drénec · Glénan", lat: 47.71791, lon: -4.0088 },
 ];

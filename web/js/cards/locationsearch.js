@@ -1,4 +1,5 @@
 import { searchPlaces } from "../sources/geocode.js";
+import { PORTS } from "../data/ports.js";
 import { LOCAL_SPOTS } from "../data/spots.js";
 import { t } from "../i18n.js";
 import { escapeHTML } from "../util/html.js";
@@ -6,8 +7,10 @@ import { escapeHTML } from "../util/html.js";
 const norm = (s) => s.normalize("NFD").replace(/[̀-ͯ]/g, "").toLowerCase();
 
 // Location search modal. Calls onPick({lat,lon,place}) when a result is chosen.
-// Typed queries match a small local gazetteer (Glénan islets the geocoder
-// misses) first, then Open-Meteo geocoding results.
+// A typed query matches maree.info PORTS and the local gazetteer (for exact tides)
+// plus Open-Meteo geocoding (towns/wind spots), de-duplicated by name. Picking a
+// port uses its exact coords → that port's tide; picking a town snaps to the
+// nearest port. Either way wind/bulletin derive from the chosen coordinates.
 export function openLocationSearch(settings, onPick) {
   const { lang } = settings;
   const host = document.createElement("div");
@@ -44,10 +47,15 @@ export function openLocationSearch(settings, onPick) {
     if (query.length < 2) { render([], true); return; }
     const nq = norm(query);
     const local = LOCAL_SPOTS.filter((s) => norm(s.label).includes(nq));
+    const ports = PORTS.filter((p) => norm(p.label).includes(nq)).slice(0, 8)
+      .map((p) => ({ label: p.label, lat: p.lat, lon: p.lon }));
+    const named = [...local, ...ports].map((x) => norm(x.label));
     const mine = ++seq;
-    const results = await searchPlaces(query);
+    const geo = await searchPlaces(query);
     if (mine !== seq) return; // a newer keystroke won
-    render([...local, ...results]);
+    // drop a geocoding result if a port/local entry already covers that name
+    const geoDedup = geo.filter((g) => !named.some((n) => n.includes(norm(g.name))));
+    render([...local, ...ports, ...geoDedup]);
   };
 
   let timer = null;
