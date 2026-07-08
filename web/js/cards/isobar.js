@@ -24,6 +24,25 @@ function bodyHTML(state) {
 }
 
 // DOM: re-render the img + stepper from state (no refetch) and bind steppers.
+// Fullscreen enlarged view of the current chart (scroll/pinch-zoom on mobile).
+function openIsobarZoom(src, alt) {
+  const host = document.createElement("div");
+  host.className = "isobar-zoom";
+  host.innerHTML = `<button class="isobar-zoom-close" type="button" aria-label="✕">✕</button>` +
+    `<div class="isobar-zoom-body"></div>`;
+  const img = document.createElement("img");
+  img.className = "isobar-zoom-img";
+  img.src = src;
+  img.alt = alt;
+  host.querySelector(".isobar-zoom-body").appendChild(img);
+  document.body.appendChild(host);
+  const close = () => host.remove();
+  host.querySelector(".isobar-zoom-close").addEventListener("click", close);
+  host.addEventListener("click", (e) => {
+    if (e.target === host || e.target.classList.contains("isobar-zoom-body")) close();
+  });
+}
+
 function renderBody(state) {
   mountCard(CARD_ID, bodyHTML(state), { fade: true });
   const card = document.getElementById(CARD_ID);
@@ -36,6 +55,8 @@ function renderBody(state) {
       renderBody(state);
     });
   });
+  const img = card.querySelector(".isobar-img");
+  if (img) img.addEventListener("click", () => openIsobarZoom(img.src, img.alt));
 }
 
 export async function renderIsobar(state) {
