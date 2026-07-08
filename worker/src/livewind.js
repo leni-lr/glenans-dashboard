@@ -16,16 +16,17 @@ function num(v) {
 export function parseLiveWind(jsonText) {
   const arr = JSON.parse(jsonText);
   if (!Array.isArray(arr) || arr.length === 0) throw new Error("no readings");
-  const last = arr[arr.length - 1];
-  const mean = num(last?.ws?.moy);
-  const gust = num(last?.ws?.max);
-  const dir = num(last?.wd?.moy);
-  const ts = num(last?.ts);
-  if (mean == null || ts == null) throw new Error("bad reading");
-  return {
-    mean,
-    gust: gust == null ? mean : gust,
-    dir,
-    ts,
-  };
+  // Scan back for the most recent reading that actually has a wind value — some
+  // stations report a timestamp but leave ws.moy empty ("") for the last minutes.
+  for (let i = arr.length - 1; i >= 0; i--) {
+    const r = arr[i];
+    const mean = num(r?.ws?.moy);
+    const ts = num(r?.ts);
+    if (mean != null && ts != null) {
+      const gust = num(r?.ws?.max);
+      const dir = num(r?.wd?.moy);
+      return { mean, gust: gust == null ? mean : gust, dir, ts };
+    }
+  }
+  throw new Error("no valid reading");
 }

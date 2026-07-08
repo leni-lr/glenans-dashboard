@@ -25,6 +25,18 @@ test("parseLiveWind throws on an empty array", () => {
   assert.throws(() => parseLiveWind("[]"));
 });
 
+test("parseLiveWind skips empty trailing readings and uses the last valid one", () => {
+  const sample = JSON.stringify([
+    { ts: 1783497267, ws: { moy: 7, max: 8 }, wd: { moy: 54 } },
+    { ts: 1783497600, ws: { moy: 6, max: 9 }, wd: { moy: 60 } },
+    { ts: 1783504080, ws: { moy: "", max: "" }, wd: { moy: "" } },
+    { ts: 1783504200, ws: { moy: "", max: "" }, wd: { moy: "" } },
+  ]);
+  const r = parseLiveWind(sample);
+  assert.equal(r.mean, 6, "uses the last reading that has wind");
+  assert.equal(r.ts, 1783497600);
+});
+
 test("liveWindURL builds the observations URL for a sensor", () => {
   assert.equal(liveWindURL(6),
     "https://backend.windmorbihan.com/observations/chart.json?sensor=6&time_frame=60");
