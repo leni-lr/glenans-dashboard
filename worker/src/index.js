@@ -1,5 +1,5 @@
 import { parseTide } from "./tide.js";
-import { parseLatestRun, chartGifURL, chartSteps, previousRun, ALIGN_STEP } from "./chart.js";
+import { parseLatestRun, chartGifURL, chartSteps, previousRun } from "./chart.js";
 import { parseLiveWind, liveWindURL } from "./livewind.js";
 import { parseBMS, bmsURL, tokenFromSetCookie, MF_HOME } from "./bms.js";
 
@@ -37,17 +37,27 @@ async function handleTide(url, request, ctx) {
 
 // Resolve to the latest run whose chart images are actually published: the page
 // may list a run (00Z) before its GIFs exist, so probe step 0 and step back 12 h.
-// One shared run for both variants, anchored on B&W: its medium range (T+84)
-// only publishes on 00Z runs, so this lands on the latest run where both variants
-// are available for the same base — keeping their valid times aligned.
+// One shared run for both variants = the freshest run that has the B&W analysis
+// (published immediately, unlike the lagging medium range), so the T+0 chart is
+// current and colour/B&W stay on the same base.
 async function resolveRun(parsed) {
   let run = parsed;
   for (let i = 0; i < 4; i++) {
-    const probe = await fetch(chartGifURL(run, ALIGN_STEP, "bw"), { headers: { "User-Agent": UA } });
+    const probe = await fetch(chartGifURL(run, 0, "bw"), { headers: { "User-Agent": UA } });
     if (probe.ok) { try { await probe.body?.cancel(); } catch {} return run; }
     run = previousRun(run);
   }
   return run;
+}
+
+// Which of a variant's candidate steps are actually published for this run.
+async function availableSteps(run, variant) {
+  const cand = chartSteps(variant);
+  const oks = await Promise.all(cand.map((s) =>
+    fetch(chartGifURL(run, s, variant), { headers: { "User-Agent": UA } })
+      .then((r) => { try { r.body?.cancel(); } catch {} return r.ok ? s : null; })
+      .catch(() => null)));
+  return oks.filter((s) => s !== null);
 }
 
 async function handleChart(url, request, ctx) {
@@ -55,7 +65,7 @@ async function handleChart(url, request, ctx) {
   const steps = chartSteps(variant);
   const stepParam = url.searchParams.get("step");
   const cache = caches.default;
-  const cacheKey = new Request(`https://chart.cache/${variant}/${stepParam ?? "manifest"}`, request);
+  const cacheKey = new Request(`https://chart.v2.cache/${variant}/${stepParam ?? "manifest"}`, request);
   const hit = await cache.match(cacheKey);
   if (hit) return hit;
   try {
@@ -64,7 +74,7 @@ async function handleChart(url, request, ctx) {
     const run = await resolveRun(parseLatestRun(await page.text()));
 
     if (stepParam == null) {
-      const out = json({ run, steps }, 200, { "Cache-Control": "public, max-age=3600" });
+      const out = json({ run, steps: await availableSteps(run, variant) }, 200, { "Cache-Control": "public, max-age=3600" });
       ctx.waitUntil(cache.put(cacheKey, out.clone()));
       return out;
     }

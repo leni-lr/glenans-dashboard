@@ -5,13 +5,13 @@
 // Two variants: "colour" (steps to T+120) and "bw" (a different filename scheme,
 // steps to T+84). The run timestamp is shared between them.
 
-// Both variants share one run, aligned on B&W (its medium range only publishes on
-// 00Z runs). On a 00Z run colour reaches T+72 (its T+96/120 are a 12Z-only product,
-// dropped for alignment) and B&W reaches T+84.
-export const CHART_STEPS_COLOUR = [0, 12, 24, 36, 48, 60, 72];
+// Candidate steps per variant. The Met Office publishes the longer ranges with a
+// lag (and on different run cycles), so the actual step list is probed per run at
+// request time — both variants share one run (the freshest with an analysis) and
+// advertise only the steps really published for it, keeping their valid times aligned.
+export const CHART_STEPS_COLOUR = [0, 12, 24, 36, 48, 60, 72, 96, 120];
 export const CHART_STEPS_BW = [0, 12, 24, 36, 48, 60, 72, 84];
 export const CHART_STEPS = CHART_STEPS_BW;
-export const ALIGN_STEP = 84; // B&W medium-range step used to pick the shared run
 
 export function chartSteps(variant) {
   return variant === "bw" ? CHART_STEPS_BW : CHART_STEPS_COLOUR;

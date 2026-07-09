@@ -28,9 +28,9 @@ test("chartGifURL builds the bw URL (different scheme, stops at T+84)", () => {
   assert.equal(chartGifURL("2026-07-08T1200", 84, "bw").endsWith("1200_MEDIUM_RANGE_FC084.gif"), true);
 });
 
-test("chartSteps: bw to T+84, colour to T+72 (aligned on the shared 00Z run)", () => {
+test("chartSteps: candidate lists (actual availability is probed per run)", () => {
   assert.deepEqual(chartSteps("bw"), [0, 12, 24, 36, 48, 60, 72, 84]);
-  assert.deepEqual(chartSteps("colour"), [0, 12, 24, 36, 48, 60, 72]);
+  assert.deepEqual(chartSteps("colour"), [0, 12, 24, 36, 48, 60, 72, 96, 120]);
 });
 
 test("previousRun steps back 12 h across the 00Z/12Z boundary and the day", () => {
