@@ -64,17 +64,24 @@ async function handleChart(url, request, ctx) {
   const variant = url.searchParams.get("variant") === "bw" ? "bw" : "colour";
   const steps = chartSteps(variant);
   const stepParam = url.searchParams.get("step");
+  const runParam = url.searchParams.get("run");
+  const explicitRun = runParam && /^\d{4}-\d{2}-\d{2}T\d{4}$/.test(runParam) ? runParam : null;
   const cache = caches.default;
-  const cacheKey = new Request(`https://chart.v2.cache/${variant}/${stepParam ?? "manifest"}`, request);
+  const cacheKey = new Request(`https://chart.v2.cache/${variant}/${stepParam ?? "manifest"}/${explicitRun ?? "auto"}`, request);
   const hit = await cache.match(cacheKey);
   if (hit) return hit;
   try {
-    const page = await fetch(METOFFICE_PAGE, { headers: { "User-Agent": UA } });
-    if (!page.ok) return json({ error: `metoffice HTTP ${page.status}` }, 502);
-    const run = await resolveRun(parseLatestRun(await page.text()));
+    // image requests carry an explicit run (stable → cache long); the manifest
+    // resolves the freshest run and is cached briefly so a new run shows up fast.
+    let run = explicitRun;
+    if (!run) {
+      const page = await fetch(METOFFICE_PAGE, { headers: { "User-Agent": UA } });
+      if (!page.ok) return json({ error: `metoffice HTTP ${page.status}` }, 502);
+      run = await resolveRun(parseLatestRun(await page.text()));
+    }
 
     if (stepParam == null) {
-      const out = json({ run, steps: await availableSteps(run, variant) }, 200, { "Cache-Control": "public, max-age=3600" });
+      const out = json({ run, steps: await availableSteps(run, variant) }, 200, { "Cache-Control": "public, max-age=600" });
       ctx.waitUntil(cache.put(cacheKey, out.clone()));
       return out;
     }
@@ -85,7 +92,7 @@ async function handleChart(url, request, ctx) {
     if (!gif.ok) return json({ error: `chart HTTP ${gif.status}` }, 502);
     const out = new Response(gif.body, {
       status: 200,
-      headers: { "Content-Type": "image/gif", ...CORS, "Cache-Control": "public, max-age=3600" },
+      headers: { "Content-Type": "image/gif", ...CORS, "Cache-Control": `public, max-age=${explicitRun ? 3600 : 600}` },
     });
     ctx.waitUntil(cache.put(cacheKey, out.clone()));
     return out;

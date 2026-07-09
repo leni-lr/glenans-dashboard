@@ -19,7 +19,7 @@ function header(state) {
 function bodyHTML(state) {
   const { lang } = state.settings;
   const step = state.steps[state.idx];
-  const img = `<img class="isobar-img" src="${WORKER_URL}/api/chart?step=${step}&variant=${state.variant}" alt="${t(lang, "isobar_title")}" />`;
+  const img = `<img class="isobar-img" src="${WORKER_URL}/api/chart?step=${step}&variant=${state.variant}&run=${state.run}" alt="${t(lang, "isobar_title")}" />`;
   const stepper = `<div class="isobar-step">` +
     `<button class="linkbtn" data-act="prev" type="button">◀</button> ` +
     `<span class="isobar-step__label">${chartStepLabel(state.run, step, lang)}</span> ` +
