@@ -23,6 +23,16 @@ export function parseLatestRun(html) {
   return m[1];
 }
 
+// The most recent 00Z/12Z run boundary at or before `now` (UTC). Used instead of
+// the page's advertised run, which can lag the image API and leave us stuck on an
+// older run (we only ever step backward from the start point).
+export function latestRunByClock(now = new Date()) {
+  const runHour = now.getUTCHours() >= 12 ? 12 : 0;
+  const base = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate(), runHour));
+  const p = (n) => String(n).padStart(2, "0");
+  return `${base.getUTCFullYear()}-${p(base.getUTCMonth() + 1)}-${p(base.getUTCDate())}T${p(base.getUTCHours())}00`;
+}
+
 const BASE = "https://data.consumer-digital.api.metoffice.gov.uk/v1/surface-pressure";
 
 export function chartGifURL(run, step, variant = "colour") {

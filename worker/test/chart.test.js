@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
-import { parseLatestRun, chartGifURL, chartSteps, CHART_STEPS, previousRun } from "../src/chart.js";
+import { parseLatestRun, chartGifURL, chartSteps, CHART_STEPS, previousRun, latestRunByClock } from "../src/chart.js";
 
 const html = readFileSync(new URL("./fixtures/metoffice-surface-pressure.html", import.meta.url), "utf8");
 
@@ -31,6 +31,13 @@ test("chartGifURL builds the bw URL (different scheme, stops at T+84)", () => {
 test("chartSteps: candidate lists (actual availability is probed per run)", () => {
   assert.deepEqual(chartSteps("bw"), [0, 12, 24, 36, 48, 60, 72, 84]);
   assert.deepEqual(chartSteps("colour"), [0, 12, 24, 36, 48, 60, 72, 96, 120]);
+});
+
+test("latestRunByClock rounds down to the 00Z/12Z boundary (UTC)", () => {
+  assert.equal(latestRunByClock(new Date("2026-07-10T06:00:00Z")), "2026-07-10T0000");
+  assert.equal(latestRunByClock(new Date("2026-07-10T00:30:00Z")), "2026-07-10T0000");
+  assert.equal(latestRunByClock(new Date("2026-07-10T13:00:00Z")), "2026-07-10T1200");
+  assert.equal(latestRunByClock(new Date("2026-07-10T23:59:00Z")), "2026-07-10T1200");
 });
 
 test("previousRun steps back 12 h across the 00Z/12Z boundary and the day", () => {

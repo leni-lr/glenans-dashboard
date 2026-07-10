@@ -1,5 +1,5 @@
 import { parseTide } from "./tide.js";
-import { parseLatestRun, chartGifURL, chartSteps, previousRun } from "./chart.js";
+import { chartGifURL, chartSteps, previousRun, latestRunByClock } from "./chart.js";
 import { parseLiveWind, liveWindURL } from "./livewind.js";
 import { parseBMS, bmsURL, tokenFromSetCookie, MF_HOME } from "./bms.js";
 
@@ -9,7 +9,6 @@ const CORS = {
   "Access-Control-Allow-Headers": "Content-Type",
 };
 const UA = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) Gecko/20100101 Firefox/128.0";
-const METOFFICE_PAGE = "https://weather.metoffice.gov.uk/maps-and-charts/surface-pressure";
 
 function json(body, status = 200, extra = {}) {
   return new Response(JSON.stringify(body), {
@@ -72,12 +71,11 @@ async function handleChart(url, request, ctx) {
   if (hit) return hit;
   try {
     // image requests carry an explicit run (stable → cache long); the manifest
-    // resolves the freshest run and is cached briefly so a new run shows up fast.
+    // resolves the freshest run (from the clock, not the lagging page) and is
+    // cached briefly so a new run shows up fast.
     let run = explicitRun;
     if (!run) {
-      const page = await fetch(METOFFICE_PAGE, { headers: { "User-Agent": UA } });
-      if (!page.ok) return json({ error: `metoffice HTTP ${page.status}` }, 502);
-      run = await resolveRun(parseLatestRun(await page.text()));
+      run = await resolveRun(latestRunByClock());
     }
 
     if (stepParam == null) {
