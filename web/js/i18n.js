@@ -47,7 +47,6 @@ export const DICT = {
   settings:         { fr: "Réglages",              en: "Settings" },
   theme:            { fr: "Thème",                 en: "Theme" },
   model_pick:       { fr: "Modèle météo",          en: "Weather model" },
-  model_auto:       { fr: "Auto",                  en: "Auto" },
   cmp_avg:          { fr: "moy",                   en: "avg" },
   cmp_median:       { fr: "méd",                   en: "med" },
   legend_mean: { fr: "vent",       en: "wind" },

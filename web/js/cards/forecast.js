@@ -14,6 +14,8 @@ const SOURCE = "https://open-meteo.com/";
 // and AROME has no data past ~2.5 days). Outside AROME's domain the 24 h view
 // falls back to ECMWF too — see renderForecast.
 const hasData = (d) => Array.isArray(d.speed) && d.speed.some((v) => Number.isFinite(v));
+// models whose horizon reaches 7 days (short-range ones use ECMWF for the 7 j view)
+const LONG_RANGE = new Set(["ecmwf", "gfs", "icon"]);
 
 // Pure: the title row with model chip + control buttons. `chip` reflects the
 // model actually used (set on the state by renderForecast).
@@ -46,15 +48,17 @@ export async function renderForecast(state) {
   const { lang } = state.settings;
   const { lat, lon } = state.settings;
   const is7d = state.range === "7d";
-  const chosen = state.settings.forecastModel || "auto";
-  const picked = chosen !== "auto" ? COMPARE_MODELS.find((m) => m.key === chosen) : null;
-  state.chip = picked ? picked.label : (is7d ? "ECMWF" : "AROME 1.3");
+  const chosen = state.settings.forecastModel || "arome_hd";
+  const picked = COMPARE_MODELS.find((m) => m.key === chosen) || COMPARE_MODELS[0];
+  // Short-range models can't cover 7 days → use ECMWF for the 7 j view.
+  const use7dEcmwf = is7d && !LONG_RANGE.has(picked.key);
+  state.chip = use7dEcmwf ? "ECMWF" : picked.label;
   mountCard(CARD_ID, forecastTitleRow(lang, state) + skeletonHTML(0, true));
   try {
     const days = is7d ? 7 : 1;
-    // A picked model is used as-is; "auto" uses AROME HD for 24 h / ECMWF for 7 j.
-    // AROME (and any model) that errors or returns no data here falls back to ECMWF.
-    const primary = picked ? picked.model : (is7d ? MODELS.ecmwf : MODELS.arome);
+    // The picked model is used as-is (ECMWF for 7 j on short-range models). Any
+    // model that errors or returns no data here falls back to ECMWF.
+    const primary = use7dEcmwf ? MODELS.ecmwf : picked.model;
     let data = await fetchForecast({ lat, lon, model: primary, days }).catch(() => null);
     if ((!data || !hasData(data)) && primary !== MODELS.ecmwf) {
       state.chip = "ECMWF";

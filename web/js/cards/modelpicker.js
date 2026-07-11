@@ -2,13 +2,12 @@ import { COMPARE_MODELS } from "../sources/compare.js";
 import { t } from "../i18n.js";
 import { escapeHTML } from "../util/html.js";
 
-// Small modal to choose the dashboard forecast model. onPick(key) with "auto"
-// or a COMPARE_MODELS key.
+// Small modal to choose the dashboard forecast model. onPick(key) with a
+// COMPARE_MODELS key. (7 j automatically uses a long-range model regardless.)
 export function openModelPicker(settings, onPick) {
   const { lang } = settings;
-  const current = settings.forecastModel || "auto";
-  const opts = [{ key: "auto", label: t(lang, "model_auto") },
-    ...COMPARE_MODELS.map((m) => ({ key: m.key, label: m.label }))];
+  const current = settings.forecastModel || "arome_hd";
+  const opts = COMPARE_MODELS.map((m) => ({ key: m.key, label: m.label }));
 
   const host = document.createElement("div");
   host.className = "mp-modal";
