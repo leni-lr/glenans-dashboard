@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { COMPARE_MODELS } from "../js/sources/compare.js";
-import { overlayChart, trimTrailingNulls, sliceData } from "../js/charts/compare.js";
+import { overlayChart, trimTrailingNulls, sliceData, median } from "../js/charts/compare.js";
 
 test("COMPARE_MODELS lists the free models with labels", () => {
   assert.equal(COMPARE_MODELS.length, 6);
@@ -27,6 +27,12 @@ test("overlayChart breaks a line at a null gap", () => {
 test("trimTrailingNulls cuts the padded tail", () => {
   const t = trimTrailingNulls({ times: ["a", "b", "c"], speed: [1, 2, null], gust: [1, 2, null], dir: [0, 0, 0] });
   assert.equal(t.times.length, 2);
+});
+
+test("median handles odd and even lengths", () => {
+  assert.equal(median([5, 1, 3]), 3);
+  assert.equal(median([1, 2, 3, 4]), 2.5);
+  assert.equal(median([]), null);
 });
 
 test("sliceData windows the parallel arrays and clamps the end", () => {

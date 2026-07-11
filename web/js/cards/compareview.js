@@ -1,5 +1,5 @@
 import { fetchAllModels } from "../sources/compare.js";
-import { overlayChart, trimTrailingNulls, sliceData } from "../charts/compare.js";
+import { overlayChart, trimTrailingNulls, sliceData, bindOverlayTooltip } from "../charts/compare.js";
 import { meteogram, bindMeteogramTooltip } from "../charts/meteogram.js";
 import { t } from "../i18n.js";
 import { escapeHTML } from "../util/html.js";
@@ -45,8 +45,12 @@ function renderBody(host, series, rangeKey, lang) {
     return { key: s.key, label: s.label, times: w.times, speed: w.speed };
   });
   body.innerHTML = (lines.length
-    ? `<div class="cmp-overlay">${overlayChart(lines, { lang, range: r.key })}</div>${legend(series)}`
+    ? `<div class="cmp-overlay"><div class="mg-wrap">${overlayChart(lines, { lang, range: r.key })}</div></div>${legend(series)}`
     : `<p class="cmp-miss">${t(lang, "source_down")}</p>`) + grid(series, lang, r);
+
+  // slide tooltip on the overlay: mean + median across models
+  const ov = body.querySelector(".cmp-overlay .mg-wrap");
+  if (ov && lines.length) bindOverlayTooltip(ov, lines, lang);
 
   // slide tooltip on each per-model chart (cells with data, in series order)
   const wraps = body.querySelectorAll(".cmp-cell .mg-wrap");

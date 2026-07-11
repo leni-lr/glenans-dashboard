@@ -1,4 +1,53 @@
 import { computeYMax } from "./meteogram.js";
+import { t } from "../i18n.js";
+
+// Median of a numeric array (empty → null).
+export function median(arr) {
+  if (!arr.length) return null;
+  const s = [...arr].sort((a, b) => a - b);
+  const m = Math.floor(s.length / 2);
+  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;
+}
+
+// DOM: slide tooltip on the overlay chart showing the mean + median wind across
+// the models at the hovered hour (not each model — that would be too busy).
+export function bindOverlayTooltip(wrap, series, lang) {
+  const active = series.filter((s) => Array.isArray(s.speed) && s.speed.length);
+  if (!wrap || !active.length) return;
+  const maxLen = Math.max(1, ...active.map((s) => s.times.length));
+  const times = (active.find((s) => s.times.length === maxLen) || {}).times || [];
+  const tip = document.createElement("div");
+  tip.className = "mg-tip";
+  tip.hidden = true;
+  wrap.appendChild(tip);
+  let dragging = false;
+  const show = (clientX) => {
+    const rect = wrap.getBoundingClientRect();
+    if (!rect.width) return;
+    const frac = Math.min(1, Math.max(0, (clientX - rect.left) / rect.width));
+    const i = Math.round(frac * (maxLen - 1));
+    const vals = active.map((s) => s.speed[i]).filter((v) => Number.isFinite(v));
+    if (!vals.length) return;
+    const mean = Math.round(vals.reduce((a, b) => a + b, 0) / vals.length);
+    const med = Math.round(median(vals));
+    const hh = (times[i] || "").slice(11, 16);
+    tip.textContent = `${hh} · ${t(lang, "cmp_avg")} ${mean} kn · ${t(lang, "cmp_median")} ${med} kn`;
+    tip.style.top = "6px";
+    tip.hidden = false;
+    const w = rect.width, tw = tip.offsetWidth;
+    tip.style.left = `${Math.max(tw / 2 + 2, Math.min(w - tw / 2 - 2, frac * w))}px`;
+  };
+  wrap.addEventListener("pointerdown", (e) => {
+    dragging = true;
+    try { wrap.setPointerCapture(e.pointerId); } catch { /* older browsers */ }
+    show(e.clientX);
+  });
+  wrap.addEventListener("pointermove", (e) => { if (dragging) show(e.clientX); });
+  const end = () => { dragging = false; };
+  wrap.addEventListener("pointerup", end);
+  wrap.addEventListener("pointercancel", end);
+  wrap.addEventListener("pointerleave", () => { if (!dragging) tip.hidden = true; });
+}
 
 // Slice a forecast's parallel arrays to a [start, end) hour-index window.
 export function sliceData(data, start, end) {

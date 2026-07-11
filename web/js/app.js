@@ -41,7 +41,16 @@ function renderHeader() {
   document.getElementById("header-datetime").textContent = formatDateTime(lang);
   document.getElementById("btn-lang").textContent = lang.toUpperCase();
   document.getElementById("btn-refresh").setAttribute("aria-label", t(lang, "refresh"));
-  document.getElementById("btn-settings").setAttribute("aria-label", t(lang, "settings"));
+  updateThemeButton();
+}
+
+// Theme button shows a sun (light) / moon (dark) icon for the current theme.
+function updateThemeButton() {
+  const btn = document.getElementById("btn-settings");
+  if (!btn) return;
+  const dark = document.documentElement.dataset.theme === "dark";
+  btn.textContent = dark ? "☾" : "☀";
+  btn.setAttribute("aria-label", t(state.settings.lang, "theme"));
 }
 
 function renderFooter() {
@@ -110,6 +119,7 @@ function wireEvents() {
     state.settings = saveSetting("themePref", next);
     document.documentElement.dataset.themePref = next;
     applyTheme(next);
+    updateThemeButton();
   });
 
   const ih = document.getElementById("btn-install-help");

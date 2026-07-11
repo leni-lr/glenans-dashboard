@@ -11,6 +11,7 @@ export const DEFAULTS = {
   port: "94",
   zone: "BMSCOTE-01-04",
   chartVariant: "bw",
+  forecastModel: "auto",
 };
 
 // Pure: DEFAULTS overlaid with only the known keys from `stored`.
