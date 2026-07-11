@@ -41,7 +41,7 @@
   --danger: #A32D2D;
 
   /* model-comparison line colours */
-  --cmp-0: #0C447C; --cmp-1: #378ADD; --cmp-2: #1D9E75; --cmp-3: #D85A30; --cmp-4: #7F77DD;
+  --cmp-0: #0C447C; --cmp-1: #378ADD; --cmp-2: #1D9E75; --cmp-3: #D85A30; --cmp-4: #7F77DD; --cmp-5: #C0388E;
 
   /* shape */
   --radius: 12px;
@@ -80,7 +80,7 @@
   --alert-text: #412402;
   --danger: #F09595;
 
-  --cmp-0: #85B7EB; --cmp-1: #378ADD; --cmp-2: #5DCAA5; --cmp-3: #F0997B; --cmp-4: #9D96F0;
+  --cmp-0: #85B7EB; --cmp-1: #378ADD; --cmp-2: #5DCAA5; --cmp-3: #F0997B; --cmp-4: #9D96F0; --cmp-5: #E88BC8;
 
   --hairline: #0C447C;
 }

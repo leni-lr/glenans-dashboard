@@ -6,6 +6,7 @@ export const COMPARE_MODELS = [
   { key: "icon",     label: "ICON-EU",   model: MODELS.icon },
   { key: "ecmwf",    label: "ECMWF",     model: MODELS.ecmwf },
   { key: "gfs",      label: "GFS",       model: MODELS.gfs },
+  { key: "harmonie", label: "HARMONIE",  model: MODELS.harmonie },
 ];
 
 // Fetch all comparison models in parallel; a failed model resolves to data:null

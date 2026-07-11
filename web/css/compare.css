@@ -3,6 +3,7 @@
 .cmp-line--2 { fill: none; stroke: var(--cmp-2); stroke-width: 1.6; }
 .cmp-line--3 { fill: none; stroke: var(--cmp-3); stroke-width: 1.6; }
 .cmp-line--4 { fill: none; stroke: var(--cmp-4); stroke-width: 1.6; }
+.cmp-line--5 { fill: none; stroke: var(--cmp-5); stroke-width: 1.6; }
 
 .cmp-modal {
   position: fixed; inset: 0; background: rgba(4, 44, 83, 0.55);
@@ -29,7 +30,7 @@
 .cmp-swatch { width: 14px; height: 3px; border-radius: 2px; display: inline-block; }
 .cmp-swatch--0 { background: var(--cmp-0); } .cmp-swatch--1 { background: var(--cmp-1); }
 .cmp-swatch--2 { background: var(--cmp-2); } .cmp-swatch--3 { background: var(--cmp-3); }
-.cmp-swatch--4 { background: var(--cmp-4); }
+.cmp-swatch--4 { background: var(--cmp-4); } .cmp-swatch--5 { background: var(--cmp-5); }
 .cmp-grid { display: grid; grid-template-columns: 1fr; gap: 26px; margin-top: 12px; }
 @media (min-width: 480px) { .cmp-grid { gap: 20px 16px; grid-template-columns: 1fr 1fr; } }
 .cmp-cell { margin: 0; }
