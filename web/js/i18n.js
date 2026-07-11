@@ -28,7 +28,7 @@ export const DICT = {
   compare_title:    { fr: "Comparaison des modèles", en: "Model comparison" },
   compare_today:    { fr: "aujourd'hui",           en: "today" },
   compare_tomorrow: { fr: "demain",                en: "tomorrow" },
-  install_link:     { fr: "Comment l'ajouter sur mon téléphone ?", en: "How do I add it to my phone?" },
+  install_link:     { fr: "M'ajouter à l'écran d'accueil", en: "Add me to the home screen" },
   install_title:    { fr: "Ajouter à l'écran d'accueil", en: "Add to home screen" },
   install_ios:      { fr: "dans Safari, appuyez sur Partager, faites défiler vers le bas, puis « Sur l'écran d'accueil ».",
                       en: "in Safari, tap Share, scroll down, then \"Add to Home Screen\"." },
