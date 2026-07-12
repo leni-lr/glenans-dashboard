@@ -4,6 +4,8 @@ import { rockStatusAt, thToClock } from "../rocks/rocksafety.js";
 import { t } from "../i18n.js";
 import { mountCard, skeletonHTML, errorHTML } from "../card.js";
 import { escapeHTML } from "../util/html.js";
+import { openRockForm } from "./rockform.js";
+import { saveSetting } from "../settings.js";
 
 const CARD_ID = "card-rocks";
 const SOURCE = "https://maree.info/";
@@ -81,12 +83,28 @@ export async function renderRocks(state) {
   }
 }
 
-// Click wiring. The add-form and delete are fully wired in Task 5; here the add
-// button is a no-op placeholder and delete is unhandled.
+// Click wiring: ＋ opens the add-rock form, ✕ deletes a rock. Both persist
+// settings.rocks and re-render.
 function bindRocks(state) {
   const card = document.getElementById(CARD_ID);
   if (!card) return;
-  // (Task 5 attaches add/del handlers here.)
+  card.querySelectorAll("[data-act]").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      const act = btn.getAttribute("data-act");
+      if (act === "add") {
+        openRockForm(state.settings, (rock) => {
+          state.settings.rocks = [...(state.settings.rocks || []), rock];
+          saveSetting("rocks", state.settings.rocks);
+          renderRocks(state);
+        });
+      } else if (act === "del") {
+        const id = btn.getAttribute("data-id");
+        state.settings.rocks = (state.settings.rocks || []).filter((r) => r.id !== id);
+        saveSetting("rocks", state.settings.rocks);
+        renderRocks(state);
+      }
+    });
+  });
 }
 
 export function mountRocksCard(settings) {
