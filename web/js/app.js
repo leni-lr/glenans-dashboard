@@ -5,6 +5,7 @@ import { CARD_REGISTRY, REGISTRY_KEYS } from "./cards/registry.js";
 import { visibleKeys } from "./cards/cardorder.js";
 import { openInstallHelp } from "./cards/installhelp.js";
 import { openLocationSearch } from "./cards/locationsearch.js";
+import { openSettingsPage } from "./cards/settingspage.js";
 import { resolveLocation } from "./location.js";
 
 // Source links used by each card's title / footer credits and later fallbacks.
@@ -121,6 +122,10 @@ function wireEvents() {
     document.documentElement.dataset.themePref = next;
     applyTheme(next);
     updateThemeButton();
+  });
+
+  document.getElementById("btn-menu").addEventListener("click", () => {
+    openSettingsPage(state.settings, () => renderAll());
   });
 
   const ih = document.getElementById("btn-install-help");
