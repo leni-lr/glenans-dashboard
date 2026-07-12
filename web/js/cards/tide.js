@@ -1,5 +1,5 @@
 import { fetchTide } from "../sources/tide.js";
-import { hoursFromMidnight, tideHeightAt, tideCurve, withLeadingExtreme } from "../charts/tidecurve.js";
+import { tideCurve, tideModel } from "../charts/tidecurve.js";
 import { t } from "../i18n.js";
 import { mountCard, skeletonHTML, errorHTML } from "../card.js";
 import { escapeHTML } from "../util/html.js";
@@ -17,18 +17,6 @@ function titleRow(lang, port, coef) {
   return `<div class="card__title-row"><span class="card__title">${t(lang, "tide_title")} · ${escapeHTML(port || "")}</span>${badge}</div>`;
 }
 
-function toModel(data) {
-  const pts = withLeadingExtreme(
-    data.extremes
-      .map((e) => ({ th: hoursFromMidnight(e.iso, data.today), h: e.h, type: e.type, time: e.time }))
-      .sort((a, b) => a.th - b.th)
-  );
-  const now = new Date();
-  const nowTh = now.getHours() + now.getMinutes() / 60;
-  const rising = tideHeightAt(pts, nowTh + 0.05) >= tideHeightAt(pts, nowTh);
-  return { extremes: pts, nowTh, rising };
-}
-
 export async function renderTide(state) {
   const { lang } = state.settings;
   if (state.settings.port == null) {
@@ -38,7 +26,7 @@ export async function renderTide(state) {
   mountCard(CARD_ID, plainTitle(lang) + skeletonHTML(0, true));
   try {
     const data = await fetchTide(state.settings.port);
-    const svg = tideCurve(toModel(data), { lang });
+    const svg = tideCurve(tideModel(data), { lang });
     mountCard(CARD_ID, titleRow(lang, data.port, data.coef) + svg, { fade: true });
   } catch {
     mountCard(CARD_ID, plainTitle(lang) + errorHTML(lang, SOURCE));

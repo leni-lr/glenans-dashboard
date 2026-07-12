@@ -32,6 +32,21 @@ export function withLeadingExtreme(pts) {
   return [{ th: first.th - TIDE_HALF_PERIOD, h: ref.h, type, time: "" }, ...pts];
 }
 
+// Build the render/analysis model from raw tide data: extremes as {th,h,type,time}
+// sorted with a synthetic leading extreme, plus the current time (nowTh) and whether
+// the tide is currently rising. Shared by the tide card and the rocks card.
+export function tideModel(data) {
+  const pts = withLeadingExtreme(
+    data.extremes
+      .map((e) => ({ th: hoursFromMidnight(e.iso, data.today), h: e.h, type: e.type, time: e.time }))
+      .sort((a, b) => a.th - b.th)
+  );
+  const now = new Date();
+  const nowTh = now.getHours() + now.getMinutes() / 60;
+  const rising = tideHeightAt(pts, nowTh + 0.05) >= tideHeightAt(pts, nowTh);
+  return { extremes: pts, nowTh, rising };
+}
+
 export function tideCurve(model, opts = {}) {
   const W = opts.width ?? 300, H = opts.height ?? 118;
   const L = 10, R = 10, B = 20, TOP = 26;
