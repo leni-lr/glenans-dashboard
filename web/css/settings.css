@@ -1,0 +1,43 @@
+.set-modal {
+  position: fixed; inset: 0; z-index: 50;
+  background: var(--page-bg);
+  overflow-y: auto;
+}
+.set-panel { max-width: 640px; margin: 0 auto; padding: 12px 16px 40px; }
+.set-head { display: flex; align-items: center; gap: 12px; padding: 8px 0 16px; }
+.set-title { font-size: 18px; font-weight: 600; color: var(--text-primary); }
+.set-section {
+  margin: 8px 0; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em;
+  color: var(--text-secondary);
+}
+.set-list { list-style: none; margin: 0; padding: 0; }
+.set-row {
+  display: flex; align-items: center; gap: 12px;
+  padding: 12px; margin-bottom: 8px;
+  background: var(--card-bg); border: 1px solid var(--card-border); border-radius: var(--radius);
+  touch-action: none; /* let the handle own vertical gestures */
+}
+.set-row--dragging { opacity: 0.6; }
+.set-handle { cursor: grab; color: var(--text-secondary); font-size: 18px; user-select: none; }
+.set-label { flex: 1; color: var(--text-body); }
+.set-switch { position: relative; display: inline-block; width: 44px; height: 26px; }
+.set-switch input { opacity: 0; width: 0; height: 0; }
+.set-slider {
+  position: absolute; inset: 0; cursor: pointer;
+  background: var(--chip-bg); border-radius: 26px; transition: background 0.15s;
+}
+.set-slider::before {
+  content: ""; position: absolute; height: 20px; width: 20px; left: 3px; top: 3px;
+  background: var(--card-bg); border-radius: 50%; transition: transform 0.15s;
+}
+.set-switch input:checked + .set-slider { background: var(--accent); }
+.set-switch input:checked + .set-slider::before { transform: translateX(18px); }
+.set-field {
+  display: flex; flex-direction: column; gap: 6px; margin-top: 20px;
+  color: var(--text-body); font-size: 14px;
+}
+.set-draft {
+  padding: 10px 12px; font-size: 16px;
+  background: var(--card-bg); color: var(--text-primary);
+  border: 1px solid var(--card-border); border-radius: var(--radius);
+}

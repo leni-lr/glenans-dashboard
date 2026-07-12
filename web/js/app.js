@@ -1,13 +1,11 @@
 import { loadSettings, saveSetting } from "./settings.js";
 import { initTheme, applyTheme } from "./theme.js";
 import { t } from "./i18n.js";
-import { mountForecastCard } from "./cards/forecast.js";
-import { mountTideCard } from "./cards/tide.js";
-import { mountIsobarCard } from "./cards/isobar.js";
-import { mountLiveWindCard } from "./cards/livewind.js";
-import { mountBulletinCard } from "./cards/bulletin.js";
+import { CARD_REGISTRY, REGISTRY_KEYS } from "./cards/registry.js";
+import { visibleKeys } from "./cards/cardorder.js";
 import { openInstallHelp } from "./cards/installhelp.js";
 import { openLocationSearch } from "./cards/locationsearch.js";
+import { openSettingsPage } from "./cards/settingspage.js";
 import { resolveLocation } from "./location.js";
 
 // Source links used by each card's title / footer credits and later fallbacks.
@@ -20,11 +18,7 @@ const SOURCES = {
 };
 
 const state = { settings: loadSettings() };
-let forecastCard = null;
-let tideCard = null;
-let isobarCard = null;
-let livewindCard = null;
-let bulletinCard = null;
+const mounted = {}; // card key -> { state, refresh } handle
 
 function formatDateTime(lang, date = new Date()) {
   // e.g. "ven. 3 juil. · 07:12"
@@ -70,38 +64,46 @@ function cardKeyToTitle(k) {
   }[k];
 }
 
+function renderCards() {
+  const keys = visibleKeys(state.settings.cardOrder, state.settings.cardHidden, REGISTRY_KEYS);
+  const stack = document.getElementById("card-stack");
+  const byKey = (k) => CARD_REGISTRY.find((c) => c.key === k);
+
+  // Ensure a <section> exists for each visible card and appears in the right order.
+  // appendChild on an already-attached node MOVES it, so this both creates and reorders.
+  for (const key of keys) {
+    const reg = byKey(key);
+    let sec = document.getElementById(reg.el);
+    if (!sec) {
+      sec = document.createElement("section");
+      sec.id = reg.el;
+      sec.className = "card";
+    }
+    stack.appendChild(sec);
+  }
+
+  // Drop sections whose card is no longer visible, and forget their mount handle so
+  // re-showing does a fresh mount (reloads data).
+  const visibleEls = new Set(keys.map((k) => byKey(k).el));
+  for (const sec of [...stack.children]) {
+    if (!visibleEls.has(sec.id)) {
+      const gone = CARD_REGISTRY.find((c) => c.el === sec.id);
+      if (gone) delete mounted[gone.key];
+      sec.remove();
+    }
+  }
+
+  // Mount once, else refresh with the latest settings.
+  for (const key of keys) {
+    const reg = byKey(key);
+    if (!mounted[key]) mounted[key] = reg.mount(state.settings);
+    else { mounted[key].state.settings = state.settings; mounted[key].refresh(); }
+  }
+}
+
 function renderAll() {
   renderHeader();
-  if (!forecastCard) {
-    forecastCard = mountForecastCard(state.settings);
-  } else {
-    forecastCard.state.settings = state.settings;
-    forecastCard.refresh();
-  }
-  if (!livewindCard) {
-    livewindCard = mountLiveWindCard(state.settings);
-  } else {
-    livewindCard.state.settings = state.settings;
-    livewindCard.refresh();
-  }
-  if (!tideCard) {
-    tideCard = mountTideCard(state.settings);
-  } else {
-    tideCard.state.settings = state.settings;
-    tideCard.refresh();
-  }
-  if (!bulletinCard) {
-    bulletinCard = mountBulletinCard(state.settings);
-  } else {
-    bulletinCard.state.settings = state.settings;
-    bulletinCard.refresh();
-  }
-  if (!isobarCard) {
-    isobarCard = mountIsobarCard(state.settings);
-  } else {
-    isobarCard.state.settings = state.settings;
-    isobarCard.refresh();
-  }
+  renderCards();
   renderFooter();
 }
 
@@ -120,6 +122,10 @@ function wireEvents() {
     document.documentElement.dataset.themePref = next;
     applyTheme(next);
     updateThemeButton();
+  });
+
+  document.getElementById("btn-menu").addEventListener("click", () => {
+    openSettingsPage(state.settings, () => renderAll());
   });
 
   const ih = document.getElementById("btn-install-help");
@@ -142,11 +148,7 @@ function wireEvents() {
   // Manual refresh: re-stamp the header and refresh card data.
   document.getElementById("btn-refresh").addEventListener("click", () => {
     renderHeader();
-    if (forecastCard) forecastCard.refresh();
-    if (livewindCard) livewindCard.refresh();
-    if (tideCard) tideCard.refresh();
-    if (bulletinCard) bulletinCard.refresh();
-    if (isobarCard) isobarCard.refresh();
+    for (const key of Object.keys(mounted)) mounted[key].refresh();
   });
 }
 
