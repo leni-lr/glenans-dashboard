@@ -28,9 +28,7 @@
 .rf-title { font-size: 16px; font-weight: 600; color: var(--text-primary); }
 .rf-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px;
   color: var(--text-body); font-size: 13px; }
-.rf-row { display: flex; gap: 12px; }
-.rf-row .rf-field { flex: 1; }
-.rf-name, .rf-lat, .rf-lon, .rf-height, .rf-port {
+.rf-name, .rf-height, .rf-port {
   padding: 10px 12px; font-size: 16px; background: var(--page-bg); color: var(--text-primary);
   border: 1px solid var(--card-border); border-radius: 8px; }
 .rf-save { width: 100%; padding: 12px; margin-top: 4px; border: 0; border-radius: 8px;
