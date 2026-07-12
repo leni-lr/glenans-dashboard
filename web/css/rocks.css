@@ -1,0 +1,21 @@
+.rocks-list { list-style: none; margin: 0; padding: 0; }
+.rock-row {
+  display: flex; align-items: center; gap: 10px;
+  padding: 10px 0; border-bottom: 1px solid var(--hairline);
+}
+.rock-row:last-child { border-bottom: 0; }
+.rock-main { flex: 1; min-width: 0; }
+.rock-name { color: var(--text-primary); font-weight: 600; }
+.rock-status { color: var(--text-secondary); font-size: 13px; margin-top: 2px; }
+.rock-pill {
+  flex-shrink: 0; padding: 3px 10px; border-radius: 999px;
+  font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em;
+}
+.rock-pill--clear { background: var(--rock-clear-bg); color: var(--rock-clear-text); }
+.rock-pill--foul  { background: var(--rock-foul-bg);  color: var(--rock-foul-text); }
+.rock-del {
+  flex-shrink: 0; background: none; border: 0; cursor: pointer;
+  color: var(--text-secondary); font-size: 16px; padding: 4px;
+}
+.rocks-none { color: var(--text-secondary); font-size: 13px; padding: 6px 0; }
+.rock-add { background: none; border: 0; cursor: pointer; color: var(--accent); font-size: 20px; line-height: 1; padding: 0 4px; }
