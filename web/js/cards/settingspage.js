@@ -4,8 +4,6 @@ import { saveSetting } from "../settings.js";
 import { t } from "../i18n.js";
 import { escapeHTML } from "../util/html.js";
 
-const LONG_PRESS_MS = 350;
-
 // Full-screen settings overlay. ☰ opens it; ← (or backdrop) closes it and calls
 // onClose(). Toggles persist cardHidden; long-press-drag on the handle persists
 // cardOrder; the draft input persists draft. All three also mutate `settings` in
@@ -70,28 +68,28 @@ export function openSettingsPage(settings, onClose) {
   wireDragReorder(host, settings);
 }
 
-// Long-press a row's handle, then drag to reorder. Commits cardOrder on release.
+// Grab a row's handle and drag to reorder — starts instantly on pointerdown (no
+// long-press), commits cardOrder on release. preventDefault + pointer capture stop
+// Android from selecting text or scrolling mid-drag.
 function wireDragReorder(host, settings) {
   const list = host.querySelector(".set-list");
-  let pressTimer = null, dragging = null, startY = 0;
+  let dragging = null;
 
   const rows = () => [...list.querySelectorAll(".set-row")];
   const currentOrder = () => rows().map((r) => r.getAttribute("data-key"));
 
   list.querySelectorAll('[data-act="handle"]').forEach((handle) => {
     handle.addEventListener("pointerdown", (e) => {
-      const row = handle.closest(".set-row");
-      startY = e.clientY;
-      pressTimer = setTimeout(() => {
-        dragging = row;
-        row.classList.add("set-row--dragging");
-      }, LONG_PRESS_MS);
+      e.preventDefault(); // block text-selection / scroll on touch
+      dragging = handle.closest(".set-row");
+      dragging.classList.add("set-row--dragging");
+      handle.setPointerCapture?.(e.pointerId); // keep move/up events flowing on touch
     });
   });
 
   host.addEventListener("pointermove", (e) => {
-    if (pressTimer && Math.abs(e.clientY - startY) > 8) { clearTimeout(pressTimer); pressTimer = null; }
     if (!dragging) return;
+    e.preventDefault();
     const rs = rows();
     const from = rs.indexOf(dragging);
     // Find the row whose vertical midpoint the pointer is past.
@@ -108,13 +106,11 @@ function wireDragReorder(host, settings) {
   });
 
   const end = () => {
-    if (pressTimer) { clearTimeout(pressTimer); pressTimer = null; }
-    if (dragging) {
-      dragging.classList.remove("set-row--dragging");
-      dragging = null;
-      settings.cardOrder = currentOrder();
-      saveSetting("cardOrder", settings.cardOrder);
-    }
+    if (!dragging) return;
+    dragging.classList.remove("set-row--dragging");
+    dragging = null;
+    settings.cardOrder = currentOrder();
+    saveSetting("cardOrder", settings.cardOrder);
   };
   host.addEventListener("pointerup", end);
   host.addEventListener("pointercancel", end);
