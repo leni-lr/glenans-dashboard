@@ -18,7 +18,11 @@
   touch-action: none; /* let the handle own vertical gestures */
 }
 .set-row--dragging { opacity: 0.6; }
-.set-handle { cursor: grab; color: var(--text-secondary); font-size: 18px; user-select: none; }
+.set-row--dragging, .set-row--dragging * { user-select: none; -webkit-user-select: none; }
+.set-handle {
+  cursor: grab; color: var(--text-secondary); font-size: 18px;
+  user-select: none; -webkit-user-select: none; touch-action: none;
+}
 .set-label { flex: 1; color: var(--text-body); }
 .set-switch { position: relative; display: inline-block; width: 44px; height: 26px; }
 .set-switch input { opacity: 0; width: 0; height: 0; }
