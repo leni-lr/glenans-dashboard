@@ -13,7 +13,7 @@
 }
 .rock-pill--clear { background: var(--rock-clear-bg); color: var(--rock-clear-text); }
 .rock-pill--foul  { background: var(--rock-foul-bg);  color: var(--rock-foul-text); }
-.rock-edit, .rock-del {
+.rock-edit {
   flex-shrink: 0; background: none; border: 0; cursor: pointer;
   color: var(--text-secondary); font-size: 16px; padding: 4px;
 }
@@ -33,3 +33,8 @@
   border: 1px solid var(--card-border); border-radius: 8px; }
 .rf-save { width: 100%; padding: 12px; margin-top: 4px; border: 0; border-radius: 8px;
   background: var(--accent); color: var(--header-title); font-size: 15px; font-weight: 600; cursor: pointer; }
+.rf-actions { display: flex; gap: 12px; margin-top: 4px; }
+.rf-actions .rf-save { width: auto; flex: 1; margin-top: 0; }
+.rf-delete { flex: 1; padding: 12px; border-radius: 8px; cursor: pointer;
+  font-size: 15px; font-weight: 600; background: transparent;
+  color: var(--danger); border: 1px solid var(--danger); }
