@@ -33,6 +33,7 @@ export const DICT = {
   rocks_port:       { fr: "Port de marée",         en: "Tide port" },
   rocks_save:       { fr: "Ajouter",               en: "Add" },
   rocks_update:     { fr: "Enregistrer",           en: "Save" },
+  rocks_delete:     { fr: "Supprimer",             en: "Delete" },
   bulletin_title:   { fr: "Situation générale",    en: "General situation" },
   bms_none:         { fr: "BMS : aucun",           en: "BMS: none" },
   bms_active:       { fr: "BMS en cours",          en: "BMS in effect" },

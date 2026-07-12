@@ -27,8 +27,9 @@ function statusLine(lang, st) {
 }
 
 function rowActions(lang, id) {
-  return `<button class="rock-edit" data-act="edit" data-id="${escapeHTML(id)}" type="button" aria-label="✎">✎</button>` +
-    `<button class="rock-del" data-act="del" data-id="${escapeHTML(id)}" type="button" aria-label="✕">✕</button>`;
+  // Only edit on the dashboard — deletion lives inside the edit form, so a rock
+  // can't be removed by a stray tap on the list.
+  return `<button class="rock-edit" data-act="edit" data-id="${escapeHTML(id)}" type="button" aria-label="${t(lang, "rocks_edit_title")}">✎</button>`;
 }
 
 function rowHTML(lang, rock, st) {
@@ -97,25 +98,30 @@ function bindRocks(state) {
     btn.addEventListener("click", () => {
       const act = btn.getAttribute("data-act");
       if (act === "add") {
-        openRockForm(state.settings, (rock) => {
-          state.settings.rocks = [...(state.settings.rocks || []), rock];
-          saveSetting("rocks", state.settings.rocks);
-          renderRocks(state);
+        openRockForm(state.settings, {
+          onSave: (rock) => {
+            state.settings.rocks = [...(state.settings.rocks || []), rock];
+            saveSetting("rocks", state.settings.rocks);
+            renderRocks(state);
+          },
         });
       } else if (act === "edit") {
         const id = btn.getAttribute("data-id");
         const existing = (state.settings.rocks || []).find((r) => r.id === id);
         if (!existing) return;
-        openRockForm(state.settings, (rock) => {
-          state.settings.rocks = (state.settings.rocks || []).map((r) => (r.id === rock.id ? rock : r));
-          saveSetting("rocks", state.settings.rocks);
-          renderRocks(state);
-        }, existing);
-      } else if (act === "del") {
-        const id = btn.getAttribute("data-id");
-        state.settings.rocks = (state.settings.rocks || []).filter((r) => r.id !== id);
-        saveSetting("rocks", state.settings.rocks);
-        renderRocks(state);
+        openRockForm(state.settings, {
+          existing,
+          onSave: (rock) => {
+            state.settings.rocks = (state.settings.rocks || []).map((r) => (r.id === rock.id ? rock : r));
+            saveSetting("rocks", state.settings.rocks);
+            renderRocks(state);
+          },
+          onDelete: () => {
+            state.settings.rocks = (state.settings.rocks || []).filter((r) => r.id !== id);
+            saveSetting("rocks", state.settings.rocks);
+            renderRocks(state);
+          },
+        });
       }
     });
   });
