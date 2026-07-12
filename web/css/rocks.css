@@ -13,7 +13,7 @@
 }
 .rock-pill--clear { background: var(--rock-clear-bg); color: var(--rock-clear-text); }
 .rock-pill--foul  { background: var(--rock-foul-bg);  color: var(--rock-foul-text); }
-.rock-del {
+.rock-edit, .rock-del {
   flex-shrink: 0; background: none; border: 0; cursor: pointer;
   color: var(--text-secondary); font-size: 16px; padding: 4px;
 }
