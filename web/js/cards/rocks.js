@@ -18,25 +18,30 @@ function titleRow(lang) {
     `</span></div>`;
 }
 
+// "passe jusqu'à 12h24" while it clears; "découvert jusqu'à 14h37" while it dries.
+// The clock is the next moment the state flips (or nothing if it holds all day).
 function statusLine(lang, st) {
+  const word = st.safe ? t(lang, "rocks_pass") : t(lang, "rocks_dry");
   const clock = st.crossingTh != null ? thToClock(st.crossingTh) : null;
-  if (st.safe) {
-    return clock ? `${t(lang, "rocks_clear")} · ${t(lang, "rocks_until")} ${clock}` : t(lang, "rocks_clear");
-  }
-  return clock ? `${t(lang, "rocks_foul")} · ${t(lang, "rocks_clear_from")} ${clock}` : t(lang, "rocks_foul");
+  return clock ? `${word} ${t(lang, "rocks_until")} ${clock}` : word;
+}
+
+function rowActions(lang, id) {
+  return `<button class="rock-edit" data-act="edit" data-id="${escapeHTML(id)}" type="button" aria-label="✎">✎</button>` +
+    `<button class="rock-del" data-act="del" data-id="${escapeHTML(id)}" type="button" aria-label="✕">✕</button>`;
 }
 
 function rowHTML(lang, rock, st) {
   const pill = st.safe
-    ? `<span class="rock-pill rock-pill--clear">${t(lang, "rocks_clear")}</span>`
-    : `<span class="rock-pill rock-pill--foul">${t(lang, "rocks_foul")}</span>`;
+    ? `<span class="rock-pill rock-pill--clear">${t(lang, "rocks_pass")}</span>`
+    : `<span class="rock-pill rock-pill--foul">${t(lang, "rocks_dry")}</span>`;
   return `<li class="rock-row" data-id="${escapeHTML(rock.id)}">` +
     `<div class="rock-main">` +
       `<div class="rock-name">${escapeHTML(rock.name)}</div>` +
       `<div class="rock-status">${statusLine(lang, st)}</div>` +
     `</div>` +
     pill +
-    `<button class="rock-del" data-act="del" data-id="${escapeHTML(rock.id)}" type="button" aria-label="✕">✕</button>` +
+    rowActions(lang, rock.id) +
     `</li>`;
 }
 
@@ -73,7 +78,7 @@ export async function renderRocks(state) {
          : `<li class="rock-row" data-id="${escapeHTML(rock.id)}"><div class="rock-main">` +
            `<div class="rock-name">${escapeHTML(rock.name)}</div>` +
            `<div class="rock-status">—</div></div>` +
-           `<button class="rock-del" data-act="del" data-id="${escapeHTML(rock.id)}" type="button" aria-label="✕">✕</button></li>`
+           rowActions(lang, rock.id) + `</li>`
     ).join("");
     mountCard(CARD_ID, titleRow(lang) + `<ul class="rocks-list">${body}</ul>`, { fade: true });
     bindRocks(state);
@@ -97,6 +102,15 @@ function bindRocks(state) {
           saveSetting("rocks", state.settings.rocks);
           renderRocks(state);
         });
+      } else if (act === "edit") {
+        const id = btn.getAttribute("data-id");
+        const existing = (state.settings.rocks || []).find((r) => r.id === id);
+        if (!existing) return;
+        openRockForm(state.settings, (rock) => {
+          state.settings.rocks = (state.settings.rocks || []).map((r) => (r.id === rock.id ? rock : r));
+          saveSetting("rocks", state.settings.rocks);
+          renderRocks(state);
+        }, existing);
       } else if (act === "del") {
         const id = btn.getAttribute("data-id");
         state.settings.rocks = (state.settings.rocks || []).filter((r) => r.id !== id);

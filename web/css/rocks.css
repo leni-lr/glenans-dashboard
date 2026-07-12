@@ -13,7 +13,7 @@
 }
 .rock-pill--clear { background: var(--rock-clear-bg); color: var(--rock-clear-text); }
 .rock-pill--foul  { background: var(--rock-foul-bg);  color: var(--rock-foul-text); }
-.rock-del {
+.rock-edit, .rock-del {
   flex-shrink: 0; background: none; border: 0; cursor: pointer;
   color: var(--text-secondary); font-size: 16px; padding: 4px;
 }
@@ -28,9 +28,7 @@
 .rf-title { font-size: 16px; font-weight: 600; color: var(--text-primary); }
 .rf-field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px;
   color: var(--text-body); font-size: 13px; }
-.rf-row { display: flex; gap: 12px; }
-.rf-row .rf-field { flex: 1; }
-.rf-name, .rf-lat, .rf-lon, .rf-height, .rf-port {
+.rf-name, .rf-height, .rf-port {
   padding: 10px 12px; font-size: 16px; background: var(--page-bg); color: var(--text-primary);
   border: 1px solid var(--card-border); border-radius: 8px; }
 .rf-save { width: 100%; padding: 12px; margin-top: 4px; border: 0; border-radius: 8px;
