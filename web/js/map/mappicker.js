@@ -81,6 +81,7 @@ export function openMapPicker(settings, { lat, lon, zoom = 13 }, onPick) {
   };
 
   view.addEventListener("pointerdown", (e) => {
+    if (e.target.closest?.(".map-zoom")) return; // zoom buttons handle their own taps
     view.setPointerCapture?.(e.pointerId);
     pointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
     const now = Date.now();
@@ -113,6 +114,10 @@ export function openMapPicker(settings, { lat, lon, zoom = 13 }, onPick) {
   const endPointer = (e) => {
     pointers.delete(e.pointerId);
     if (pointers.size < 2) pinchDist = 0;
+    if (pointers.size === 1) { // pinch dropped to one finger → resume dragging from it
+      const p = [...pointers.values()][0];
+      dragging = true; lastX = p.x; lastY = p.y;
+    }
     if (pointers.size === 0) dragging = false;
   };
   view.addEventListener("pointerup", endPointer);
