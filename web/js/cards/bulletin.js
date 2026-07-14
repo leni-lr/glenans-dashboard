@@ -57,19 +57,25 @@ export async function renderBulletin(state) {
   try {
     const d = await fetchBMS(state.settings.zone);
     let situation = d.situation;
+    let special = d.special;
     const report = pickTodayReport(d);
     let rTitle = report ? report.title : "";
     let rLines = report ? report.lines : [];
     // Bulletin text is French source; translate only for the English UI (Worker
     // proxy, with fallback to the original on failure).
     if (lang === "en") {
-      const [s, tt, ...ll] = await Promise.all([
-        translateText(situation), translateText(rTitle), ...rLines.map((l) => translateText(l)),
+      const [s, sp, tt, ...ll] = await Promise.all([
+        translateText(situation), translateText(special), translateText(rTitle),
+        ...rLines.map((l) => translateText(l)),
       ]);
-      situation = s; rTitle = tt; rLines = ll;
+      situation = s; special = sp; rTitle = tt; rLines = ll;
     }
     const extra = report ? reportSection(rTitle, rLines) : "";
-    const body = titleRow(lang, d.warning) + area +
+    // When a BMS is in effect, show its full text (same source as the amber banner)
+    // right under the title, so "Situation générale" carries the warning description.
+    const specialBlock = d.warning && special
+      ? `<div class="bms-special">${escapeHTML(special)}</div>` : "";
+    const body = titleRow(lang, d.warning) + area + specialBlock +
       `<p class="bms-text" data-clamped="true">${escapeHTML(situation)}</p>` +
       (extra ? `<div class="bms-extra" hidden>${extra}</div>` : "") +
       `<button class="linkbtn bms-more" data-act="more">${t(lang, "see_more")}</button>`;
