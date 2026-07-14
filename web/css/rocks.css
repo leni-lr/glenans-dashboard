@@ -31,6 +31,9 @@
 .rf-name, .rf-height, .rf-port {
   padding: 10px 12px; font-size: 16px; background: var(--page-bg); color: var(--text-primary);
   border: 1px solid var(--card-border); border-radius: 8px; }
+.rf-pos { text-align: left; padding: 10px 12px; font-size: 15px; cursor: pointer;
+  background: var(--page-bg); color: var(--text-primary);
+  border: 1px solid var(--card-border); border-radius: 8px; }
 .rf-save { width: 100%; padding: 12px; margin-top: 4px; border: 0; border-radius: 8px;
   background: var(--accent); color: var(--header-title); font-size: 15px; font-weight: 600; cursor: pointer; }
 .rf-actions { display: flex; gap: 12px; margin-top: 4px; }

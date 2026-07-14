@@ -31,6 +31,8 @@ export const DICT = {
   rocks_name:       { fr: "Nom",                   en: "Name" },
   rocks_height:     { fr: "Hauteur au-dessus du zéro (m)", en: "Height above datum (m)" },
   rocks_port:       { fr: "Port de marée",         en: "Tide port" },
+  rocks_position:      { fr: "Position",           en: "Location" },
+  rocks_position_none: { fr: "non définie",        en: "not set" },
   rocks_save:       { fr: "Ajouter",               en: "Add" },
   rocks_update:     { fr: "Enregistrer",           en: "Save" },
   rocks_delete:     { fr: "Supprimer",             en: "Delete" },
