@@ -2,10 +2,23 @@
 
 // Top of the y-axis in knots. Baseline 35 keeps the 10/20/30 gridlines tidy;
 // expand past 32kn gusts to the next multiple of 10 at/above max+3 for headroom.
-export function computeYMax(gusts) {
-  const max = gusts.length ? Math.max(...gusts) : 0;
+// `observed` is the measured-wind curve's means — without it, a day that blew
+// harder than forecast would draw off the top of the plot.
+export function computeYMax(gusts, observed = []) {
+  const vals = [...gusts, ...observed].filter((v) => Number.isFinite(v));
+  const max = vals.length ? Math.max(...vals) : 0;
   if (max > 32) return Math.ceil((max + 3) / 10) * 10;
   return 35;
+}
+
+// Pure: raw {ts,mean} samples from /api/windhistory -> ascending [{ms, mean}]
+// for the observed curve. Seconds become ms so the chart can map by timestamp.
+export function observedSeries(samples) {
+  if (!Array.isArray(samples)) return [];
+  return samples
+    .filter((s) => s && Number.isFinite(s.ts) && Number.isFinite(s.mean))
+    .map((s) => ({ ms: s.ts * 1000, mean: s.mean }))
+    .sort((a, b) => a.ms - b.ms);
 }
 
 const CARDINALS = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];

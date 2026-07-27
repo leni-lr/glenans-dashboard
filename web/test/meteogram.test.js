@@ -83,3 +83,16 @@ test("meteogram tolerates gusts above 32kn (y auto-expands, still renders)", () 
   const svg = meteogram(d);
   assert.match(svg, /class="mg-area"/); // no throw, area still drawn
 });
+
+test("computeYMax also scales to the observed curve", () => {
+  // forecast gusts stay low, but the day actually blew 41 kn
+  assert.equal(computeYMax([10, 14, 18], [12, 41, 20]), 50);
+  // observed below the gusts changes nothing
+  assert.equal(computeYMax([10, 14, 18], [5, 9]), 35);
+  // omitting the second argument keeps the old behaviour
+  assert.equal(computeYMax([45]), 50);
+});
+
+test("computeYMax ignores non-finite values in either array", () => {
+  assert.equal(computeYMax([10, null, 14], [null, undefined, 8]), 35);
+});
