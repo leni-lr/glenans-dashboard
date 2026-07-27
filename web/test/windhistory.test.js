@@ -1,7 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { observedSeries, meteogram } from "../js/charts/meteogram.js";
-import { legendHTML } from "../js/cards/forecast.js";
+import { legendHTML, forecastTitleRow } from "../js/cards/forecast.js";
 
 test("observedSeries converts seconds to ms and keeps ascending order", () => {
   const out = observedSeries([
@@ -131,4 +131,27 @@ test("legendHTML shows the observed key only when a curve was drawn", () => {
 
 test("legendHTML translates the observed key", () => {
   assert.ok(legendHTML("en", { observed: true }).includes("real"));
+});
+
+test("forecastTitleRow offers demain, not 7 j", () => {
+  const html = forecastTitleRow("fr", { chip: "AROME HD", range: "24h" });
+  assert.ok(html.includes("demain"));
+  assert.ok(!html.includes("7 j"), "the 7-day view left the dashboard");
+  assert.match(html, /data-act="range" aria-pressed="false"/);
+});
+
+test("forecastTitleRow marks the range button pressed on the tomorrow view", () => {
+  const html = forecastTitleRow("fr", { chip: "AROME HD", range: "tomorrow" });
+  assert.match(html, /data-act="range" aria-pressed="true"/);
+});
+
+test("forecastTitleRow titles the card by range", () => {
+  assert.ok(forecastTitleRow("fr", { chip: "X", range: "24h" }).includes("Prévision vent · 24 h"));
+  assert.ok(forecastTitleRow("fr", { chip: "X", range: "tomorrow" }).includes("Prévision vent · demain"));
+  assert.ok(forecastTitleRow("en", { chip: "X", range: "tomorrow" }).includes("Wind forecast · tomorrow"));
+});
+
+test("forecastTitleRow shows the picked model chip on both ranges", () => {
+  // no more silent ECMWF swap: every model reaches 48 h
+  assert.ok(forecastTitleRow("fr", { chip: "AROME HD", range: "tomorrow" }).includes("AROME HD"));
 });
