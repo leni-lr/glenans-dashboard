@@ -84,7 +84,17 @@ export function overlayChart(series, opts = {}) {
   const maxLen = Math.max(1, ...active.map((s) => s.times.length));
   const labelTimes = (active.find((s) => s.times.length === maxLen) || {}).times || [];
   const allSpeeds = active.flatMap((s) => s.speed).filter((v) => v != null);
-  const ym = computeYMax(allSpeeds);
+  // Same timestamp mapping as the meteogram: observations are irregular
+  // 10-minute samples and cannot be placed by array index. Filtered before
+  // computeYMax so an out-of-domain point never inflates the y-axis.
+  const t0ms = new Date(labelTimes[0]).getTime();
+  const tNms = new Date(labelTimes[labelTimes.length - 1]).getTime();
+  const domainOK = labelTimes.length > 1
+    && Number.isFinite(t0ms) && Number.isFinite(tNms) && tNms > t0ms;
+  const obs = domainOK && Array.isArray(opts.observed)
+    ? opts.observed.filter((p) => p.ms >= t0ms && p.ms <= tNms)
+    : [];
+  const ym = computeYMax(allSpeeds, obs.map((p) => p.mean));
   const x = (i) => L + (maxLen <= 1 ? 0 : (i * plotW) / (maxLen - 1));
   const y = (v) => TOP + plotH * (1 - v / ym);
   const f = (n) => n.toFixed(1);
@@ -107,6 +117,13 @@ export function overlayChart(series, opts = {}) {
     });
     if (d) s += `<path class="cmp-line--${idx}" d="${d.trim()}"/>`;
   });
+
+  if (obs.length >= 2) {
+    const ox = (msVal) => L + ((msVal - t0ms) / (tNms - t0ms)) * plotW;
+    let op = `M${f(ox(obs[0].ms))} ${f(y(obs[0].mean))}`;
+    for (let i = 1; i < obs.length; i++) op += ` L${f(ox(obs[i].ms))} ${f(y(obs[i].mean))}`;
+    s += `<path class="mg-observed" d="${op}"/>`;
+  }
 
   // x-axis time scale: weekday at day boundaries for the week view, else hours.
   const is7 = opts.range === "week";
