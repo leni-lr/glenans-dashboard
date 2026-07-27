@@ -6,8 +6,8 @@ import { escapeHTML } from "../util/html.js";
 
 // Full-screen settings overlay. ☰ opens it; ← (or backdrop) closes it and calls
 // onClose(). Toggles persist cardHidden; long-press-drag on the handle persists
-// cardOrder; the draft input persists draft. All three also mutate `settings` in
-// place so the caller's live settings object stays current.
+// cardOrder. Both also mutate `settings` in place so the caller's live settings
+// object stays current. (Draught moved to the Cailloux card — see draftpicker.js.)
 export function openSettingsPage(settings, onClose) {
   const { lang } = settings;
   const title = (key) => t(lang, CARD_REGISTRY.find((c) => c.key === key).titleKey);
@@ -33,9 +33,6 @@ export function openSettingsPage(settings, onClose) {
       `</div>` +
       `<h3 class="set-section">${t(lang, "settings_cards")}</h3>` +
       `<ul class="set-list">${rowsHTML()}</ul>` +
-      `<label class="set-field">${t(lang, "settings_draft")}` +
-        `<input class="set-draft" type="number" inputmode="decimal" step="0.1" min="0" value="${settings.draft}" />` +
-      `</label>` +
     `</div>`;
 
   document.body.appendChild(host);
@@ -53,16 +50,6 @@ export function openSettingsPage(settings, onClose) {
       settings.cardHidden = [...hidden];
       saveSetting("cardHidden", settings.cardHidden);
     });
-  });
-
-  // Draft.
-  const draftInput = host.querySelector(".set-draft");
-  draftInput.addEventListener("change", () => {
-    const v = parseFloat(draftInput.value);
-    if (Number.isFinite(v) && v >= 0) {
-      settings.draft = v;
-      saveSetting("draft", v);
-    }
   });
 
   wireDragReorder(host, settings);

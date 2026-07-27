@@ -2,10 +2,23 @@
 
 // Top of the y-axis in knots. Baseline 35 keeps the 10/20/30 gridlines tidy;
 // expand past 32kn gusts to the next multiple of 10 at/above max+3 for headroom.
-export function computeYMax(gusts) {
-  const max = gusts.length ? Math.max(...gusts) : 0;
+// `observed` is the measured-wind curve's means — without it, a day that blew
+// harder than forecast would draw off the top of the plot.
+export function computeYMax(gusts, observed = []) {
+  const vals = [...gusts, ...observed].filter((v) => Number.isFinite(v));
+  const max = vals.length ? Math.max(...vals) : 0;
   if (max > 32) return Math.ceil((max + 3) / 10) * 10;
   return 35;
+}
+
+// Pure: raw {ts,mean} samples from /api/windhistory -> ascending [{ms, mean}]
+// for the observed curve. Seconds become ms so the chart can map by timestamp.
+export function observedSeries(samples) {
+  if (!Array.isArray(samples)) return [];
+  return samples
+    .filter((s) => s && Number.isFinite(s.ts) && Number.isFinite(s.mean))
+    .map((s) => ({ ms: s.ts * 1000, mean: s.mean }))
+    .sort((a, b) => a.ms - b.ms);
 }
 
 const CARDINALS = ["N", "NE", "E", "SE", "S", "SW", "W", "NW"];
@@ -71,7 +84,18 @@ export function meteogram(data, opts = {}) {
   const L = 26, R = 8, B = 34, TOP = 10;
   const { times, speed, gust, dir } = data;
   const N = times.length;
-  const ym = computeYMax(gust);
+  // Observations are irregular ~10-minute samples while the forecast is hourly,
+  // so they are placed by timestamp against the chart's own time domain — never
+  // by array index. Points outside the domain are dropped (not clamped), so the
+  // curve never draws a false flat segment along the chart edge. Filtering here,
+  // before computeYMax, keeps an out-of-domain spike from inflating the y-axis.
+  const t0ms = new Date(times[0]).getTime();
+  const tNms = new Date(times[N - 1]).getTime();
+  const domainOK = Number.isFinite(t0ms) && Number.isFinite(tNms) && tNms > t0ms;
+  const obs = domainOK && Array.isArray(opts.observed)
+    ? opts.observed.filter((p) => p.ms >= t0ms && p.ms <= tNms)
+    : [];
+  const ym = computeYMax(gust, obs.map((p) => p.mean));
   const plotW = W - L - R, plotH = H - B - TOP;
   const baseY = H - B;
   const x = (i) => L + (N <= 1 ? 0 : (i * plotW) / (N - 1));
@@ -98,6 +122,13 @@ export function meteogram(data, opts = {}) {
   s += `<path class="mg-area" d="${area}"/>`;
   s += `<path class="mg-line" d="${line}"/>`;
   s += `<path class="mg-gust" d="${gustP}"/>`;
+
+  if (obs.length >= 2) {
+    const ox = (msVal) => L + ((msVal - t0ms) / (tNms - t0ms)) * plotW;
+    let op = `M${f(ox(obs[0].ms))} ${f(y(obs[0].mean))}`;
+    for (let i = 1; i < obs.length; i++) op += ` L${f(ox(obs[i].ms))} ${f(y(obs[i].mean))}`;
+    s += `<path class="mg-observed" d="${op}"/>`;
+  }
 
   if (opts.compare && Array.isArray(opts.compare.speed) && opts.compare.speed.length) {
     const cs = opts.compare.speed, cn = cs.length;

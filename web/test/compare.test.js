@@ -50,3 +50,59 @@ test("overlayChart draws hour labels for a day window", () => {
   assert.match(svg, />0h</);
   assert.match(svg, />6h</);
 });
+
+const HOURS = Array.from({ length: 25 }, (_, i) => {
+  const d = i < 24 ? "26" : "27";
+  return `2026-07-${d}T${String(i % 24).padStart(2, "0")}:00`;
+});
+const at = (iso) => new Date(iso).getTime();
+
+test("overlayChart draws the observed curve mapped by timestamp", () => {
+  const svg = overlayChart(
+    [{ key: "a", label: "A", times: HOURS, speed: HOURS.map(() => 12) }],
+    { observed: [
+      { ms: at("2026-07-26T00:00"), mean: 10 },
+      { ms: at("2026-07-26T12:00"), mean: 10 },
+      { ms: at("2026-07-27T00:00"), mean: 10 },
+    ] });
+  const d = svg.match(/class="mg-observed" d="([^"]+)"/)[1];
+  const xs = [...d.matchAll(/[ML]([\d.]+) /g)].map((m) => Number(m[1]));
+  // plot spans x=26 .. 320-8=312, width 286; midpoint 169
+  assert.ok(Math.abs(xs[0] - 26) < 0.1, `starts left, got ${xs[0]}`);
+  assert.ok(Math.abs(xs[1] - 169) < 0.1, `midday centred, got ${xs[1]}`);
+  assert.ok(Math.abs(xs[2] - 312) < 0.1, `ends right, got ${xs[2]}`);
+});
+
+test("overlayChart clips observed points outside the domain and needs two to draw", () => {
+  const line = [{ key: "a", label: "A", times: HOURS, speed: HOURS.map(() => 12) }];
+  const clipped = overlayChart(line, { observed: [
+    { ms: at("2026-07-20T00:00"), mean: 30 },
+    { ms: at("2026-07-26T06:00"), mean: 9 },
+    { ms: at("2026-07-26T12:00"), mean: 11 },
+  ] });
+  assert.equal([...clipped.match(/class="mg-observed" d="([^"]+)"/)[1].matchAll(/[ML]/g)].length, 2);
+
+  const one = overlayChart(line, { observed: [{ ms: at("2026-07-26T06:00"), mean: 9 }] });
+  assert.ok(!one.includes("mg-observed"));
+});
+
+test("overlayChart scales to an observed peak above every model", () => {
+  const svg = overlayChart(
+    [{ key: "a", label: "A", times: HOURS, speed: HOURS.map(() => 12) }],
+    { observed: [
+      { ms: at("2026-07-26T06:00"), mean: 9 },
+      { ms: at("2026-07-26T12:00"), mean: 44 },
+    ] });
+  // Gridlines are emitted in the order 10, 20, 30 — take the third.
+  // y(30) with ym=50, TOP=8, plotH=150-22-8=120 -> 8 + 120*(1-30/50) = 56.0
+  const grids = [...svg.matchAll(/<line class="mg-grid" x1="26" y1="([\d.]+)"/g)].map((m) => Number(m[1]));
+  assert.equal(grids.length, 3);
+  assert.ok(Math.abs(grids[2] - 56) < 0.2, `expected the 50kn scale, got y=${grids[2]}`);
+});
+
+test("overlayChart ignores observed data when times are unparseable", () => {
+  const svg = overlayChart(
+    [{ key: "a", label: "A", times: ["t0", "t1", "t2"], speed: [5, 6, 7] }],
+    { observed: [{ ms: 1000, mean: 9 }, { ms: 2000, mean: 9 }] });
+  assert.ok(!svg.includes("mg-observed"));
+});

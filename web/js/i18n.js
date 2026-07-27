@@ -5,8 +5,10 @@ export const LANGS = ["fr", "en"];
 export const DICT = {
   header_subtitle_sep: { fr: " · ", en: " · " },
   forecast_title:   { fr: "Prévision vent · 24 h", en: "Wind forecast · 24 h" },
+  forecast_title_tomorrow: { fr: "Prévision vent · demain", en: "Wind forecast · tomorrow" },
   compare:          { fr: "+ comparer",            en: "+ compare" },
   seven_days:       { fr: "7 j",                   en: "7 d" },
+  tomorrow_range:   { fr: "demain",                en: "tomorrow" },
   livewind_title:   { fr: "Vent actuel",           en: "Live wind" },
   livewind_gust:    { fr: "raf.",                  en: "gust" },
   livewind_updated: { fr: "mis à jour il y a",     en: "updated" },
@@ -24,7 +26,7 @@ export const DICT = {
   rocks_none:       { fr: "Aucun caillou enregistré. Touchez + pour en ajouter.",
                       en: "No rocks yet. Tap + to add one." },
   rocks_pass:       { fr: "passe",                 en: "clear" },
-  rocks_dry:        { fr: "découvert",             en: "drying" },
+  rocks_dry:        { fr: "passe pas",             en: "no-go" },
   rocks_until:      { fr: "jusqu'à",               en: "until" },
   rocks_add_title:  { fr: "Ajouter un caillou",    en: "Add a rock" },
   rocks_edit_title: { fr: "Modifier le caillou",   en: "Edit rock" },
@@ -74,6 +76,7 @@ export const DICT = {
   legend_mean: { fr: "vent",       en: "wind" },
   legend_gust: { fr: "rafales",    en: "gusts" },
   legend_now:  { fr: "maintenant", en: "now" },
+  legend_observed: { fr: "réel", en: "real" },
 };
 
 export function t(lang, key) {

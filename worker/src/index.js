@@ -1,6 +1,7 @@
 import { parseTide } from "./tide.js";
 import { chartGifURL, chartSteps, previousRun, latestRunByClock } from "./chart.js";
 import { parseLiveWind, liveWindURL } from "./livewind.js";
+import { parseWindHistory, windHistoryURL } from "./windhistory.js";
 import { parseBMS, bmsURL, tokenFromSetCookie, MF_HOME } from "./bms.js";
 
 const CORS = {
@@ -117,6 +118,26 @@ async function handleLiveWind(url, request, ctx) {
   }
 }
 
+// The day's measured wind, for the green curve drawn over the forecast. Cached
+// 5 min — comfortably under the feed's 10-minute sampling interval.
+async function handleWindHistory(url, request, ctx) {
+  const nid = (url.searchParams.get("nid") || "6").replace(/[^0-9]/g, "") || "6";
+  const cache = caches.default;
+  const cacheKey = new Request(`https://windhistory.cache/${nid}`, request);
+  const hit = await cache.match(cacheKey);
+  if (hit) return hit;
+  try {
+    const res = await fetch(windHistoryURL(nid), { headers: { "User-Agent": UA } });
+    if (!res.ok) return json({ error: `windmorbihan HTTP ${res.status}` }, 502);
+    const data = parseWindHistory(await res.text());
+    const out = json({ nid: Number(nid), ...data }, 200, { "Cache-Control": "public, max-age=300" });
+    ctx.waitUntil(cache.put(cacheKey, out.clone()));
+    return out;
+  } catch (e) {
+    return json({ error: `windhistory failed: ${String(e.message || e)}` }, 502);
+  }
+}
+
 // Mint a fresh rwg Bearer token: meteofrance.com sets an `mfsession` cookie
 // whose ROT13 is the token. env.MF_TOKEN overrides (for local testing).
 async function mintBMSToken(env) {
@@ -164,6 +185,7 @@ export default {
     if (url.pathname === "/api/tide") return handleTide(url, request, ctx);
     if (url.pathname === "/api/chart") return handleChart(url, request, ctx);
     if (url.pathname === "/api/livewind") return handleLiveWind(url, request, ctx);
+    if (url.pathname === "/api/windhistory") return handleWindHistory(url, request, ctx);
     if (url.pathname === "/api/bms") return handleBMS(url, request, env, ctx);
     return json({ error: "not found" }, 404);
   },

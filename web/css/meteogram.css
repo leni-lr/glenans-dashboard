@@ -7,6 +7,9 @@
 .mg-now  { stroke: var(--now); stroke-width: 1.6; }
 .mg-arrow path { fill: var(--axis-label); }
 .mg-compare { fill: none; stroke: var(--compare); stroke-width: 1.4; }
+/* measured wind — same green as the now-bar the curve ends against, so green
+   reads as "what happened" and blue as "what is forecast" */
+.mg-observed { fill: none; stroke: var(--now); stroke-width: 1.8; }
 
 /* controls row (model chip + text buttons) */
 .card__controls { font-size: 11px; }
@@ -23,6 +26,7 @@
 .mg-legend .leg-mean { color: var(--line); }
 .mg-legend .leg-gust { color: var(--gust); }
 .mg-legend .leg-now  { color: var(--now); }
+.mg-legend .leg-obs  { color: var(--now); }
 .mg-legend .leg-cmp  { color: var(--compare); }
 
 /* tap/slide tooltip — touch-action:none lets a finger scrub without scrolling */
