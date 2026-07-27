@@ -84,7 +84,18 @@ export function meteogram(data, opts = {}) {
   const L = 26, R = 8, B = 34, TOP = 10;
   const { times, speed, gust, dir } = data;
   const N = times.length;
-  const ym = computeYMax(gust);
+  // Observations are irregular ~10-minute samples while the forecast is hourly,
+  // so they are placed by timestamp against the chart's own time domain — never
+  // by array index. Points outside the domain are dropped (not clamped), so the
+  // curve never draws a false flat segment along the chart edge. Filtering here,
+  // before computeYMax, keeps an out-of-domain spike from inflating the y-axis.
+  const t0ms = new Date(times[0]).getTime();
+  const tNms = new Date(times[N - 1]).getTime();
+  const domainOK = Number.isFinite(t0ms) && Number.isFinite(tNms) && tNms > t0ms;
+  const obs = domainOK && Array.isArray(opts.observed)
+    ? opts.observed.filter((p) => p.ms >= t0ms && p.ms <= tNms)
+    : [];
+  const ym = computeYMax(gust, obs.map((p) => p.mean));
   const plotW = W - L - R, plotH = H - B - TOP;
   const baseY = H - B;
   const x = (i) => L + (N <= 1 ? 0 : (i * plotW) / (N - 1));
@@ -111,6 +122,13 @@ export function meteogram(data, opts = {}) {
   s += `<path class="mg-area" d="${area}"/>`;
   s += `<path class="mg-line" d="${line}"/>`;
   s += `<path class="mg-gust" d="${gustP}"/>`;
+
+  if (obs.length >= 2) {
+    const ox = (msVal) => L + ((msVal - t0ms) / (tNms - t0ms)) * plotW;
+    let op = `M${f(ox(obs[0].ms))} ${f(y(obs[0].mean))}`;
+    for (let i = 1; i < obs.length; i++) op += ` L${f(ox(obs[i].ms))} ${f(y(obs[i].mean))}`;
+    s += `<path class="mg-observed" d="${op}"/>`;
+  }
 
   if (opts.compare && Array.isArray(opts.compare.speed) && opts.compare.speed.length) {
     const cs = opts.compare.speed, cn = cs.length;
