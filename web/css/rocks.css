@@ -5,11 +5,14 @@
 }
 .rock-row:last-child { border-bottom: 0; }
 .rock-main { flex: 1; min-width: 0; }
-.rock-name { color: var(--text-primary); font-weight: 600; }
+.rock-name {
+  color: var(--text-primary); font-weight: 600;
+  overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
 .rock-status { color: var(--text-secondary); font-size: 13px; margin-top: 2px; }
 .rock-pill {
-  flex-shrink: 0; padding: 3px 10px; border-radius: 999px;
-  font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.03em;
+  flex-shrink: 0; padding: 3px 10px; border-radius: 999px; white-space: nowrap;
+  font-size: 12px; font-weight: 600;
 }
 .rock-pill--clear { background: var(--rock-clear-bg); color: var(--rock-clear-text); }
 .rock-pill--foul  { background: var(--rock-foul-bg);  color: var(--rock-foul-text); }

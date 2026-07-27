@@ -26,7 +26,7 @@ export const DICT = {
   rocks_none:       { fr: "Aucun caillou enregistré. Touchez + pour en ajouter.",
                       en: "No rocks yet. Tap + to add one." },
   rocks_pass:       { fr: "passe",                 en: "clear" },
-  rocks_dry:        { fr: "découvert",             en: "drying" },
+  rocks_dry:        { fr: "passe pas",             en: "no-go" },
   rocks_until:      { fr: "jusqu'à",               en: "until" },
   rocks_add_title:  { fr: "Ajouter un caillou",    en: "Add a rock" },
   rocks_edit_title: { fr: "Modifier le caillou",   en: "Edit rock" },

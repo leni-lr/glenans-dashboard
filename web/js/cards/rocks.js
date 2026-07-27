@@ -18,12 +18,15 @@ function titleRow(lang) {
     `</span></div>`;
 }
 
-// "passe jusqu'à 12h24" while it clears; "découvert jusqu'à 14h37" while it dries.
-// The clock is the next moment the state flips (or nothing if it holds all day).
-function statusLine(lang, st) {
-  const word = st.safe ? t(lang, "rocks_pass") : t(lang, "rocks_dry");
+// Pure: the coloured pill, which is now the row's entire status. "passe jusqu'à
+// 12h24" while the boat clears; "passe pas jusqu'à 14h37" while it doesn't. The
+// clock is the next moment the state flips, and is dropped when it holds all day.
+export function rockPill(lang, st) {
+  const word = t(lang, st.safe ? "rocks_pass" : "rocks_dry");
   const clock = st.crossingTh != null ? thToClock(st.crossingTh) : null;
-  return clock ? `${word} ${t(lang, "rocks_until")} ${clock}` : word;
+  const text = clock ? `${word} ${t(lang, "rocks_until")} ${clock}` : word;
+  const cls = st.safe ? "rock-pill--clear" : "rock-pill--foul";
+  return `<span class="rock-pill ${cls}">${text}</span>`;
 }
 
 function rowActions(lang, id) {
@@ -33,15 +36,9 @@ function rowActions(lang, id) {
 }
 
 function rowHTML(lang, rock, st) {
-  const pill = st.safe
-    ? `<span class="rock-pill rock-pill--clear">${t(lang, "rocks_pass")}</span>`
-    : `<span class="rock-pill rock-pill--foul">${t(lang, "rocks_dry")}</span>`;
   return `<li class="rock-row" data-id="${escapeHTML(rock.id)}">` +
-    `<div class="rock-main">` +
-      `<div class="rock-name">${escapeHTML(rock.name)}</div>` +
-      `<div class="rock-status">${statusLine(lang, st)}</div>` +
-    `</div>` +
-    pill +
+    `<div class="rock-main"><div class="rock-name">${escapeHTML(rock.name)}</div></div>` +
+    rockPill(lang, st) +
     rowActions(lang, rock.id) +
     `</li>`;
 }
