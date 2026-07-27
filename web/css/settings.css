@@ -36,12 +36,3 @@
 }
 .set-switch input:checked + .set-slider { background: var(--accent); }
 .set-switch input:checked + .set-slider::before { transform: translateX(18px); }
-.set-field {
-  display: flex; flex-direction: column; gap: 6px; margin-top: 20px;
-  color: var(--text-body); font-size: 14px;
-}
-.set-draft {
-  padding: 10px 12px; font-size: 16px;
-  background: var(--card-bg); color: var(--text-primary);
-  border: 1px solid var(--card-border); border-radius: var(--radius);
-}

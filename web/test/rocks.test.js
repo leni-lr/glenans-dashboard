@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { rockPill } from "../js/cards/rocks.js";
+import { rockPill, draftLabel } from "../js/cards/rocks.js";
 
 test("rockPill states passage and when it ends", () => {
   const html = rockPill("fr", { safe: true, crossingTh: 12.4 });
@@ -23,4 +23,15 @@ test("rockPill drops the clock when the state holds all day", () => {
 test("rockPill translates to English", () => {
   assert.ok(rockPill("en", { safe: true, crossingTh: 12.4 }).includes("clear until 12h24"));
   assert.ok(rockPill("en", { safe: false, crossingTh: null }).includes(">no-go<"));
+});
+
+test("draftLabel uses a decimal comma in French and a point in English", () => {
+  assert.equal(draftLabel("fr", 1.5), "1,5 m");
+  assert.equal(draftLabel("en", 1.5), "1.5 m");
+  assert.equal(draftLabel("fr", 2), "2,0 m");
+});
+
+test("draftLabel survives a corrupt stored value", () => {
+  assert.equal(draftLabel("fr", undefined), "0,0 m");
+  assert.equal(draftLabel("fr", "abc"), "0,0 m");
 });
