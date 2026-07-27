@@ -1,6 +1,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { observedSeries, meteogram } from "../js/charts/meteogram.js";
+import { legendHTML } from "../js/cards/forecast.js";
 
 test("observedSeries converts seconds to ms and keeps ascending order", () => {
   const out = observedSeries([
@@ -116,4 +117,18 @@ test("meteogram skips the observed curve when the time domain is unparseable", (
   const bogus = { times: ["t0", "t1"], speed: [10, 10], gust: [14, 14], dir: [270, 270] };
   const svg = meteogram(bogus, { observed: [{ ms: 1000, mean: 9 }, { ms: 2000, mean: 9 }] });
   assert.ok(!svg.includes("mg-observed"));
+});
+
+test("legendHTML shows the observed key only when a curve was drawn", () => {
+  const without = legendHTML("fr");
+  assert.ok(!without.includes("leg-obs"), "no promise of data that is not there");
+  assert.ok(without.includes("maintenant"));
+
+  const with_ = legendHTML("fr", { observed: true });
+  assert.match(with_, /class="leg-obs">━<\/span> réel/);
+  assert.ok(with_.indexOf("leg-obs") < with_.indexOf("leg-now"), "réel sits before maintenant");
+});
+
+test("legendHTML translates the observed key", () => {
+  assert.ok(legendHTML("en", { observed: true }).includes("real"));
 });

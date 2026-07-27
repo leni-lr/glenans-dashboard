@@ -1,6 +1,7 @@
 import { fetchForecast, MODELS } from "../sources/openmeteo.js";
 import { COMPARE_MODELS } from "../sources/compare.js";
-import { meteogram, bindMeteogramTooltip } from "../charts/meteogram.js";
+import { meteogram, bindMeteogramTooltip, observedSeries } from "../charts/meteogram.js";
+import { fetchWindHistory } from "../sources/windhistory.js";
 import { openCompareView } from "./compareview.js";
 import { openModelPicker } from "./modelpicker.js";
 import { t } from "../i18n.js";
@@ -29,18 +30,33 @@ export function forecastTitleRow(lang, { chip, range }) {
     `</span></div>`;
 }
 
-// Pure: the legend line under the chart.
-export function legendHTML(lang) {
+// Pure: the legend line under the chart. The `réel` key appears only when the
+// measured curve was actually drawn.
+export function legendHTML(lang, { observed = false } = {}) {
   return `<div class="mg-legend">` +
     `<span class="leg-mean">━</span> ${t(lang, "legend_mean") ?? "vent"}` +
     `&nbsp;&nbsp;<span class="leg-gust">┄</span> ${t(lang, "legend_gust") ?? "rafales"}` +
+    (observed ? `&nbsp;&nbsp;<span class="leg-obs">━</span> ${t(lang, "legend_observed")}` : "") +
     `&nbsp;&nbsp;<span class="leg-now">│</span> ${t(lang, "legend_now") ?? "maintenant"}</div>`;
 }
 
-function bodyHTML(lang, state, svg) {
+function bodyHTML(lang, state, svg, observed) {
   return forecastTitleRow(lang, state) +
     `<div class="mg-wrap">${svg}</div>` +
-    legendHTML(lang);
+    legendHTML(lang, { observed });
+}
+
+// The measured curve is strictly additive: no station, no Worker, or a dead
+// upstream all yield an empty series and a chart identical to before.
+async function loadObserved(state) {
+  const { stationNid } = state.settings;
+  if (stationNid == null || state.range !== "24h") return [];
+  try {
+    const { samples } = await fetchWindHistory(stationNid);
+    return observedSeries(samples);
+  } catch {
+    return [];
+  }
 }
 
 // DOM: fetch + render (or error). Never throws out of the card.
@@ -53,6 +69,7 @@ export async function renderForecast(state) {
   // Short-range models can't cover 7 days → use ECMWF for the 7 j view.
   const use7dEcmwf = is7d && !LONG_RANGE.has(picked.key);
   state.chip = use7dEcmwf ? "ECMWF" : picked.label;
+  const observedP = loadObserved(state);
   mountCard(CARD_ID, forecastTitleRow(lang, state) + skeletonHTML(0, true));
   try {
     const days = is7d ? 7 : 1;
@@ -66,12 +83,14 @@ export async function renderForecast(state) {
     }
     if (!data) throw new Error("no forecast");
     state.data = data;
+    const observed = await observedP;
     const svg = meteogram(state.data, {
       nowTime: new Date().toISOString(),
       range: state.range,
       lang,
+      observed,
     });
-    mountCard(CARD_ID, bodyHTML(lang, state, svg), { fade: true });
+    mountCard(CARD_ID, bodyHTML(lang, state, svg, observed.length > 0), { fade: true });
     bindInteractions(state);
   } catch {
     mountCard(CARD_ID, forecastTitleRow(lang, state) + errorHTML(lang, SOURCE));
