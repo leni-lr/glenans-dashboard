@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { COMPARE_MODELS } from "../js/sources/compare.js";
+import { COMPARE_MODELS, visibleModels } from "../js/sources/compare.js";
 import { overlayChart, trimTrailingNulls, sliceData, median } from "../js/charts/compare.js";
 
 test("COMPARE_MODELS lists the free models with labels", () => {
@@ -105,4 +105,65 @@ test("overlayChart ignores observed data when times are unparseable", () => {
     [{ key: "a", label: "A", times: ["t0", "t1", "t2"], speed: [5, 6, 7] }],
     { observed: [{ ms: 1000, mean: 9 }, { ms: 2000, mean: 9 }] });
   assert.ok(!svg.includes("mg-observed"));
+});
+
+test("visibleModels drops hidden keys and preserves order", () => {
+  const series = [{ key: "a" }, { key: "b" }, { key: "c" }];
+  assert.deepEqual(visibleModels(series, ["b"]).map((s) => s.key), ["a", "c"]);
+  assert.deepEqual(visibleModels(series, ["a", "c"]).map((s) => s.key), ["b"]);
+  assert.deepEqual(visibleModels(series, ["a", "b", "c"]), []);
+});
+
+test("visibleModels returns everything when nothing is hidden", () => {
+  const series = [{ key: "a" }, { key: "b" }];
+  assert.equal(visibleModels(series, []), series);
+  assert.equal(visibleModels(series, null), series);
+  assert.equal(visibleModels(series, undefined), series);
+});
+
+test("overlayChart colours by ser.ci, so hiding a model cannot recolour its neighbours", () => {
+  // ICON-EU is colour 2. Alone in the list its array index is 0 — without ci it
+  // would render as cmp-line--0 (navy) the moment the models above it are hidden.
+  const svg = overlayChart(
+    [{ key: "icon", label: "ICON-EU", ci: 2, times: HOURS, speed: HOURS.map(() => 12) }]);
+  assert.match(svg, /cmp-line--2/);
+  assert.ok(!svg.includes("cmp-line--0"));
+});
+
+test("overlayChart without ci still colours by array position", () => {
+  const svg = overlayChart([
+    { key: "a", label: "A", times: HOURS, speed: HOURS.map(() => 5) },
+    { key: "b", label: "B", times: HOURS, speed: HOURS.map(() => 8) },
+  ]);
+  assert.match(svg, /cmp-line--0/);
+  assert.match(svg, /cmp-line--1/);
+});
+
+test("overlayChart with zero series still draws the measured curve from opts.times", () => {
+  const svg = overlayChart([], {
+    times: HOURS,
+    observed: [
+      { ms: at("2026-07-26T06:00"), mean: 9 },
+      { ms: at("2026-07-26T18:00"), mean: 14 },
+    ],
+  });
+  assert.match(svg, /class="mg-observed"/, "the day's real wind is still worth showing alone");
+  assert.match(svg, /12h<\/text>/, "hour labels come from opts.times");
+});
+
+test("overlayChart spreads the hour labels across the plot with zero series", () => {
+  // Guards a real trap: with no series the x-scale falls back to a single
+  // point, which silently stacks every label on the left edge.
+  const svg = overlayChart([], { times: HOURS });
+  const xs = [...svg.matchAll(/<text class="mg-axis" x="([\d.]+)"[^>]*>\d+h<\/text>/g)]
+    .map((m) => Number(m[1]));
+  assert.ok(xs.length >= 4, `expected 0h/6h/12h/18h labels, got ${xs.length}`);
+  assert.equal(new Set(xs).size, xs.length, `labels stacked at the same x: ${xs.join(",")}`);
+  assert.ok(Math.max(...xs) - Math.min(...xs) > 200, "labels span the plot width");
+});
+
+test("overlayChart with zero series and no observed data draws no line at all", () => {
+  const svg = overlayChart([], { times: HOURS });
+  assert.ok(!svg.includes("mg-observed"));
+  assert.ok(!svg.includes("cmp-line--"));
 });
