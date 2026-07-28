@@ -52,9 +52,3 @@
 .mp-item { width: 100%; text-align: left; background: transparent; border: none; cursor: pointer;
   font: inherit; font-size: 15px; color: var(--text-body); padding: 11px 4px; min-height: 44px; }
 .mp-item--on { color: var(--accent); font-weight: 600; }
-
-/* the toggle sheet opens from inside the comparator (z-index 50) and must
-   clear it, and the enlarged isobar chart (70). The compound selector
-   raises specificity above plain .set-modal so this wins regardless of
-   stylesheet load order. */
-.set-modal.set-modal--over { z-index: 80; }

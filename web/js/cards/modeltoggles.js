@@ -25,7 +25,7 @@ export function openModelToggles(settings, onChange) {
     `<div class="set-panel">` +
       `<div class="set-head">` +
         `<button class="iconbtn" data-act="close" aria-label="${t(lang, "settings_back")}">←</button>` +
-        `<span class="set-title">${t(lang, "compare_models")}</span>` +
+        `<span class="set-title">${t(lang, "compare_models_title")}</span>` +
       `</div>` +
       `<ul class="set-list">${rows}</ul>` +
     `</div>`;

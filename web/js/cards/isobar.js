@@ -51,9 +51,9 @@ function bodyHTML(state) {
 
 // Fullscreen enlarged chart. Pinch-zoom stays the browser's; a horizontal
 // swipe steps to the previous/next chart, but only while unzoomed. state.idx
-// is shared with the card, and onChange() on close leaves the card showing
-// whatever you swiped to.
-function openIsobarZoom(state, onChange) {
+// is shared with the card, and onClose() leaves the card showing whatever
+// you swiped to.
+function openIsobarZoom(state, onClose) {
   const { lang } = state.settings;
   const n = state.steps.length;
 
@@ -83,7 +83,7 @@ function openIsobarZoom(state, onChange) {
   };
   paint();
 
-  const close = () => { host.remove(); onChange(); };
+  const close = () => { host.remove(); onClose(); };
 
   // Pinch-zoom is visual-viewport zoom on both iOS and Android, so the viewport
   // scale is what actually distinguishes "user zoomed in" from "chart is simply

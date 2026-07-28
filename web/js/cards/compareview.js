@@ -21,7 +21,7 @@ function tabs(lang, activeKey) {
   ).join("") + `</div>`;
 }
 
-function legend(series, lang, observed) {
+export function legend(series, lang, observed) {
   const models = series.map((s, i) =>
     `<span class="cmp-key"><span class="cmp-swatch cmp-swatch--${s.ci ?? i}"></span>${escapeHTML(s.label)}</span>`
   ).join("");
@@ -43,7 +43,7 @@ function grid(series, lang, r, observed) {
 
 // "modèles" normally; "modèles · 4/6" once something is switched off, so a
 // model disabled days ago cannot be silently forgotten.
-function modelsLabel(lang, hidden) {
+export function modelsLabel(lang, hidden) {
   const off = (hidden || []).length;
   const total = COMPARE_MODELS.length;
   return off ? `${t(lang, "compare_models")} · ${total - off}/${total}` : t(lang, "compare_models");
@@ -57,17 +57,30 @@ function renderBody(host, loaded, rangeKey, lang, allObserved, hidden) {
   if (!body) return;
   const observed = rangeKey === "today" ? allObserved : [];
   const shown = visibleModels(loaded, hidden);
-  // The axis domain comes from any loaded model — including a hidden one — so
-  // the overlay still has a time scale when every model is switched off.
-  const withData = loaded.find((s) => s.data);
-  const times = withData ? sliceData(withData.data, r.start, r.end).times : [];
+  // The axis domain comes from the loaded model (including a hidden one) with
+  // the longest slice — not just the first one found — so a short-range model
+  // loading before a longer one can never truncate the axis, and the overlay
+  // still has a time scale when every model is switched off.
+  const times = loaded.reduce((best, s) => {
+    if (!s.data) return best;
+    const w = sliceData(s.data, r.start, r.end).times;
+    return w.length > best.length ? w : best;
+  }, []);
   const lines = shown.filter((s) => s.data).map((s) => {
     const w = sliceData(s.data, r.start, r.end);
     return { key: s.key, label: s.label, ci: s.ci, times: w.times, speed: w.speed };
   });
 
-  const overlay = (lines.length || observed.length)
-    ? `<div class="cmp-overlay"><div class="mg-wrap">${overlayChart(lines, { lang, range: r.key, observed, times })}</div></div>${legend(shown, lang, observed.length > 0)}`
+  // A usable domain needs either a model line (which carries its own times) or
+  // an observed series paired with a real (>1-point) time axis to map against;
+  // `observed.length` alone is not enough — with times === [] the overlay would
+  // draw gridlines but no mg-observed path, while still promising one below.
+  // The legend's observed flag is gated on the same condition so it can never
+  // name a curve the chart did not draw.
+  const domainOK = times.length > 1;
+  const overlayOK = lines.length || (observed.length && domainOK);
+  const overlay = overlayOK
+    ? `<div class="cmp-overlay"><div class="mg-wrap">${overlayChart(lines, { lang, range: r.key, observed, times })}</div></div>${legend(shown, lang, observed.length > 0 && domainOK)}`
     : "";
   // "all switched off" and "all failed to load" look alike on screen but mean
   // opposite things — never collapse them into one message.
