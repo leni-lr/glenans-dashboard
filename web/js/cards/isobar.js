@@ -8,6 +8,27 @@ import { saveSetting } from "../settings.js";
 const CARD_ID = "card-isobar";
 const SOURCE = "https://weather.metoffice.gov.uk/maps-and-charts/surface-pressure";
 
+// Pure: the image URL for one step of the current run/variant. Shared by the
+// card, the enlarged view, and the preloader so the three cannot drift apart.
+export function chartURL(state, step) {
+  return `${WORKER_URL}/api/chart?step=${step}&variant=${state.variant}&run=${state.run}`;
+}
+
+// Pure: move an index by dir over n steps, wrapping at both ends.
+export function stepIdx(idx, n, dir) {
+  return (idx + dir + n) % n;
+}
+
+// Pure: what a drag in the enlarged view means. Null unless it is a decisive
+// horizontal swipe on an unzoomed chart — while zoomed, drags pan the image,
+// and one gesture must never mean two things.
+export function swipeAction(dx, dy, zoomed) {
+  if (zoomed) return null;
+  if (Math.abs(dx) <= 50) return null;
+  if (Math.abs(dx) <= Math.abs(dy) * 1.5) return null;
+  return dx < 0 ? "next" : "prev";
+}
+
 // title + a colour/B&W toggle (button labelled with the OTHER mode)
 function header(state) {
   const { lang } = state.settings;
@@ -19,7 +40,7 @@ function header(state) {
 function bodyHTML(state) {
   const { lang } = state.settings;
   const step = state.steps[state.idx];
-  const img = `<img class="isobar-img" src="${WORKER_URL}/api/chart?step=${step}&variant=${state.variant}&run=${state.run}" alt="${t(lang, "isobar_title")}" />`;
+  const img = `<img class="isobar-img" src="${chartURL(state, step)}" alt="${t(lang, "isobar_title")}" />`;
   const stepper = `<div class="isobar-step">` +
     `<button class="linkbtn" data-act="prev" type="button">◀</button> ` +
     `<span class="isobar-step__label">${chartStepLabel(state.run, step, lang)}</span> ` +
@@ -67,8 +88,7 @@ function renderBody(state) {
   card.querySelectorAll('[data-act="prev"], [data-act="next"]').forEach((btn) => {
     btn.addEventListener("click", () => {
       const dir = btn.getAttribute("data-act") === "next" ? 1 : -1;
-      const n = state.steps.length;
-      state.idx = (state.idx + dir + n) % n;
+      state.idx = stepIdx(state.idx, state.steps.length, dir);
       renderBody(state);
     });
   });
