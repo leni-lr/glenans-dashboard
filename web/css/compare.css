@@ -15,6 +15,7 @@
 }
 .cmp-head { display: flex; align-items: center; justify-content: space-between; }
 .cmp-title { font-weight: 700; color: var(--text-primary); }
+.cmp-head-actions { display: flex; align-items: center; gap: 4px; }
 .cmp-tabs { display: flex; gap: 6px; margin-top: 10px; }
 .cmp-tab {
   flex: 1; background: var(--chip-bg); color: var(--chip-text); border: none;
@@ -51,3 +52,7 @@
 .mp-item { width: 100%; text-align: left; background: transparent; border: none; cursor: pointer;
   font: inherit; font-size: 15px; color: var(--text-body); padding: 11px 4px; min-height: 44px; }
 .mp-item--on { color: var(--accent); font-weight: 600; }
+
+/* the toggle sheet opens from inside the comparator (z-index 50) and must
+   clear it, and the enlarged isobar chart (70) */
+.set-modal--over { z-index: 80; }

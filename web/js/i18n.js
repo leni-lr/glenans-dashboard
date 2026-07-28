@@ -46,6 +46,8 @@ export const DICT = {
   compare_title:    { fr: "Comparaison des modèles", en: "Model comparison" },
   compare_today:    { fr: "aujourd'hui",           en: "today" },
   compare_tomorrow: { fr: "demain",                en: "tomorrow" },
+  compare_models:    { fr: "modèles",                 en: "models" },
+  compare_no_models: { fr: "aucun modèle sélectionné", en: "no models selected" },
   install_link:     { fr: "M'ajouter à l'écran d'accueil", en: "Add me to the home screen" },
   install_title:    { fr: "Ajouter à l'écran d'accueil", en: "Add to home screen" },
   install_ios:      { fr: "dans Safari, appuyez sur Partager, faites défiler vers le bas, puis « Sur l'écran d'accueil ».",

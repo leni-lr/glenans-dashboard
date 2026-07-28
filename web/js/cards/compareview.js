@@ -1,7 +1,8 @@
-import { fetchAllModels } from "../sources/compare.js";
+import { fetchAllModels, visibleModels, COMPARE_MODELS } from "../sources/compare.js";
 import { overlayChart, trimTrailingNulls, sliceData, bindOverlayTooltip } from "../charts/compare.js";
 import { meteogram, bindMeteogramTooltip, observedSeries } from "../charts/meteogram.js";
 import { fetchWindHistory } from "../sources/windhistory.js";
+import { openModelToggles } from "./modeltoggles.js";
 import { t } from "../i18n.js";
 import { escapeHTML } from "../util/html.js";
 
@@ -22,7 +23,7 @@ function tabs(lang, activeKey) {
 
 function legend(series, lang, observed) {
   const models = series.map((s, i) =>
-    `<span class="cmp-key"><span class="cmp-swatch cmp-swatch--${i}"></span>${escapeHTML(s.label)}</span>`
+    `<span class="cmp-key"><span class="cmp-swatch cmp-swatch--${s.ci ?? i}"></span>${escapeHTML(s.label)}</span>`
   ).join("");
   const real = observed
     ? `<span class="cmp-key"><span class="cmp-swatch cmp-swatch--obs"></span>${t(lang, "legend_observed")}</span>`
@@ -40,29 +41,48 @@ function grid(series, lang, r, observed) {
   }).join("") + `</div>`;
 }
 
+// "modèles" normally; "modèles · 4/6" once something is switched off, so a
+// model disabled days ago cannot be silently forgotten.
+function modelsLabel(lang, hidden) {
+  const off = (hidden || []).length;
+  const total = COMPARE_MODELS.length;
+  return off ? `${t(lang, "compare_models")} · ${total - off}/${total}` : t(lang, "compare_models");
+}
+
 // Render overlay + legend + grid for one range (no refetch — slices in memory).
-// The measured curve belongs to today only: on demain / 7 j it is dropped, and
-// the charts' own domain filter would discard it anyway.
-function renderBody(host, series, rangeKey, lang, allObserved) {
+// The measured curve belongs to today only: on demain / 7 j it is dropped.
+function renderBody(host, loaded, rangeKey, lang, allObserved, hidden) {
   const r = RANGES.find((x) => x.key === rangeKey) || RANGES[0];
   const body = host.querySelector(".cmp-body");
   if (!body) return;
   const observed = rangeKey === "today" ? allObserved : [];
-  const lines = series.filter((s) => s.data).map((s) => {
+  const shown = visibleModels(loaded, hidden);
+  // The axis domain comes from any loaded model — including a hidden one — so
+  // the overlay still has a time scale when every model is switched off.
+  const withData = loaded.find((s) => s.data);
+  const times = withData ? sliceData(withData.data, r.start, r.end).times : [];
+  const lines = shown.filter((s) => s.data).map((s) => {
     const w = sliceData(s.data, r.start, r.end);
-    return { key: s.key, label: s.label, times: w.times, speed: w.speed };
+    return { key: s.key, label: s.label, ci: s.ci, times: w.times, speed: w.speed };
   });
-  body.innerHTML = (lines.length
-    ? `<div class="cmp-overlay"><div class="mg-wrap">${overlayChart(lines, { lang, range: r.key, observed })}</div></div>${legend(series, lang, observed.length > 0)}`
-    : `<p class="cmp-miss">${t(lang, "source_down")}</p>`) + grid(series, lang, r, observed);
 
-  // slide tooltip on the overlay: mean + median across models
+  const overlay = (lines.length || observed.length)
+    ? `<div class="cmp-overlay"><div class="mg-wrap">${overlayChart(lines, { lang, range: r.key, observed, times })}</div></div>${legend(shown, lang, observed.length > 0)}`
+    : "";
+  // "all switched off" and "all failed to load" look alike on screen but mean
+  // opposite things — never collapse them into one message.
+  const note = shown.length === 0
+    ? `<p class="cmp-miss">${t(lang, "compare_no_models")}</p>`
+    : (lines.length ? "" : `<p class="cmp-miss">${t(lang, "source_down")}</p>`);
+  body.innerHTML = overlay + note + grid(shown, lang, r, observed);
+
+  // slide tooltip on the overlay: mean + median across the SHOWN models
   const ov = body.querySelector(".cmp-overlay .mg-wrap");
   if (ov && lines.length) bindOverlayTooltip(ov, lines, lang);
 
   // slide tooltip on each per-model chart (cells with data, in series order)
   const wraps = body.querySelectorAll(".cmp-cell .mg-wrap");
-  series.filter((s) => s.data).forEach((s, i) => {
+  shown.filter((s) => s.data).forEach((s, i) => {
     if (wraps[i]) bindMeteogramTooltip(wraps[i], trimTrailingNulls(sliceData(s.data, r.start, r.end)));
   });
 }
@@ -78,7 +98,10 @@ export async function openCompareView(settings) {
   host.className = "cmp-modal";
   host.innerHTML = `<div class="cmp-panel">` +
     `<div class="cmp-head"><span class="cmp-title">${t(lang, "compare_title")}</span>` +
-    `<button class="linkbtn" data-act="close" aria-label="${t(lang, "close")}">✕</button></div>` +
+    `<span class="cmp-head-actions">` +
+      `<button class="linkbtn" data-act="models" type="button">${modelsLabel(lang, settings.compareHidden)}</button> ` +
+      `<button class="linkbtn" data-act="close" aria-label="${t(lang, "close")}">✕</button>` +
+    `</span></div>` +
     tabs(lang, range) +
     `<div class="cmp-body">${t(lang, "loading")}</div></div>`;
   document.body.appendChild(host);
@@ -89,8 +112,15 @@ export async function openCompareView(settings) {
   host.querySelectorAll("[data-range]").forEach((b) => b.addEventListener("click", () => {
     range = b.getAttribute("data-range");
     host.querySelectorAll("[data-range]").forEach((x) => x.classList.toggle("cmp-tab--on", x === b));
-    if (loaded) renderBody(host, loaded, range, lang, observed);
+    if (loaded) renderBody(host, loaded, range, lang, observed, settings.compareHidden);
   }));
+
+  const modelsBtn = host.querySelector('[data-act="models"]');
+  const rerender = () => {
+    modelsBtn.textContent = modelsLabel(lang, settings.compareHidden);
+    if (loaded) renderBody(host, loaded, range, lang, observed, settings.compareHidden);
+  };
+  modelsBtn.addEventListener("click", () => openModelToggles(settings, rerender));
 
   try {
     // Both in flight at once; the measured curve is optional and never blocks
@@ -103,7 +133,7 @@ export async function openCompareView(settings) {
     ]);
     loaded = models;
     observed = obs;
-    renderBody(host, loaded, range, lang, observed);
+    renderBody(host, loaded, range, lang, observed, settings.compareHidden);
   } catch {
     const body = host.querySelector(".cmp-body");
     if (body) body.innerHTML = `<p class="cmp-miss">${t(lang, "source_down")}</p>`;
