@@ -756,11 +756,11 @@ function openIsobarZoom(state, onChange) {
   const close = () => { host.remove(); onChange(); };
   host.querySelector(".isobar-zoom-close").addEventListener("click", close);
 
-  // Pinch-zoom on iOS is visual-viewport zoom and leaves scrollWidth untouched,
-  // so the viewport scale is the check that works there; the scrollWidth
-  // comparison covers an image overflowing its container.
-  const isZoomed = () => (window.visualViewport?.scale ?? 1) > 1.01
-    || body.scrollWidth > body.clientWidth + 1;
+  // Pinch-zoom is visual-viewport zoom on both iOS and Android, so the viewport
+  // scale is what actually distinguishes "user zoomed in" from "chart is simply
+  // wider than the screen" — which is the normal state here, since the charts are
+  // ~891px wide and the image is deliberately not shrunk to fit.
+  const isZoomed = () => (window.visualViewport?.scale ?? 1) > 1.01;
 
   let sx = 0, sy = 0, down = false, moved = false;
   body.addEventListener("pointerdown", (e) => {
