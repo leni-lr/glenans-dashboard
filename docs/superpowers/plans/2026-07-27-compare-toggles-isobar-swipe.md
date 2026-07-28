@@ -48,7 +48,10 @@
 | `web/test/compare.test.js` | `visibleModels`, `ci`, `opts.times`. |
 | `web/test/settings.test.js` | `compareHidden` default + cloning. |
 
-**Deviation from the spec, deliberate:** spec §C.5 says swiping calls `onChange()` on every swipe. This plan calls it **once, on close**. Re-rendering the card underneath a fullscreen overlay on every swipe is wasted work and risks layout jank; `state.idx` is mutated on each swipe either way, so the observable outcome — the card showing the chart you swiped to — is identical.
+**Deviations from the spec, deliberate (two):**
+
+1. Spec §C.5 says swiping calls `onChange()` on every swipe. This plan calls it **once, on close**. Re-rendering the card underneath a fullscreen overlay on every swipe is wasted work and risks layout jank; `state.idx` is mutated on each swipe either way, so the observable outcome — the card showing the chart you swiped to — is identical.
+2. Spec §C.4's zoom guard pairs the viewport-scale check with `|| body.scrollWidth > body.clientWidth + 1`. The shipped guard drops that clause and uses the scale check alone. `.isobar-zoom-img` is `width: auto; max-width: none` and the charts are ~891px wide, deliberately not shrunk to fit the viewport, so `scrollWidth > clientWidth` is true in this view regardless of zoom state — the `scrollWidth` clause would suppress every swipe, not just zoomed ones. The viewport scale is the only signal that actually distinguishes "user pinch-zoomed" from "chart is wider than the screen," which is this view's normal state.
 
 ---
 
@@ -938,6 +941,6 @@ No gaps.
 
 **Type consistency:** `ci` is attached in Task 2 (`fetchAllModels`) and read as `ser.ci` / `s.ci` in Tasks 2 and 3. `visibleModels(series, hidden)` is defined in Task 2 and called with `(loaded, hidden)` in Task 3. `opts.times` is added in Task 2 and passed as `times` in Task 3. `chartURL(state, step)`, `stepIdx(idx, n, dir)` and `swipeAction(dx, dy, zoomed)` are defined in Task 4 and called with exactly those signatures in Tasks 4 and 5. `openModelToggles(settings, onChange)` is defined in Task 3 Step 5 and called in Step 7. `openIsobarZoom(state, onChange)` is defined in Task 5 Step 1 and called in Step 2.
 
-**One deliberate spec deviation**, recorded above the tasks: `onChange()` fires on close rather than on every swipe.
+**Two deliberate spec deviations**, recorded above the tasks: `onChange()` fires on close rather than on every swipe, and the zoom guard uses the viewport-scale check alone rather than pairing it with a `scrollWidth` comparison (which would be true unconditionally in this view and suppress every swipe).
 
 **One test-boundary note:** `swipeAction` treats the 50 px threshold as exclusive (`<= 50` returns null), and the test asserts both sides of that boundary so the intent is pinned rather than left to a future reader's guess.

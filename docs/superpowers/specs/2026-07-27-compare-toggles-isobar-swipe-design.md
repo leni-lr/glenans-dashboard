@@ -193,13 +193,14 @@ Swiping left advances, matching how a stack of pages moves.
 `.isobar-zoom-body` sets `touch-action: pinch-zoom` and `overflow: auto`, so a zoomed chart is already pannable and a swipe would fight it.
 
 ```js
-const isZoomed = () => (window.visualViewport?.scale ?? 1) > 1.01
-  || body.scrollWidth > body.clientWidth + 1;
+const isZoomed = () => (window.visualViewport?.scale ?? 1) > 1.01;
 ```
 
-On iOS, pinch-zoom is *visual viewport* zoom, which leaves `scrollWidth` untouched — so the viewport scale is the check that actually works there. The `scrollWidth` comparison covers the case where the image itself overflows its container. Either being true suppresses the swipe, so no gesture ever means two things.
+The viewport scale is the *only* reliable signal here. `.isobar-zoom-img` is `width: auto; max-width: none` and the charts are ~891px wide, deliberately not shrunk to fit — so `body.scrollWidth > body.clientWidth` is true in this view whether or not the user has pinch-zoomed. A `scrollWidth` comparison, which an earlier version of this guard included, would therefore suppress every swipe unconditionally, not just while zoomed. On iOS, pinch-zoom is *visual viewport* zoom, which leaves `scrollWidth` untouched anyway, so the viewport scale is the check that actually works there too.
 
-`window.visualViewport` is optional-chained: where it is absent the scroll check alone applies.
+`window.visualViewport` is optional-chained: where it is absent, the guard simply never reports zoomed (a swipe is then treated as a page-step, matching browsers where visual-viewport zoom isn't observable).
+
+*(This corrects the original design, which paired the scale check with a `scrollWidth` clause — see the deviation note in the implementation plan.)*
 
 ### C.5 Wrapping and shared state
 
