@@ -14,6 +14,7 @@ export const DEFAULTS = {
   forecastModel: "arome_hd",
   cardOrder: ["forecast", "livewind", "tide", "rocks", "bulletin", "isobar"],
   cardHidden: ["rocks"],
+  compareHidden: [],
   rocks: [],
   draft: 1.5,
 };

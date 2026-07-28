@@ -39,3 +39,17 @@ test("mergeSettings clones array defaults (no shared reference)", () => {
   assert.equal(b.rocks.length, 0);
   assert.equal(b.cardOrder.includes("ghost"), false);
 });
+
+test("compareHidden defaults to every model shown", () => {
+  assert.deepEqual(mergeSettings({}).compareHidden, []);
+});
+
+test("compareHidden round-trips through mergeSettings", () => {
+  assert.deepEqual(mergeSettings({ compareHidden: ["icon", "gfs"] }).compareHidden, ["icon", "gfs"]);
+});
+
+test("compareHidden is cloned, never shared with DEFAULTS", () => {
+  const a = mergeSettings({});
+  a.compareHidden.push("icon");
+  assert.deepEqual(mergeSettings({}).compareHidden, [], "one settings object cannot corrupt another");
+});

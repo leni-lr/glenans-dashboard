@@ -10,16 +10,23 @@ export const COMPARE_MODELS = [
 ];
 
 // Fetch all comparison models in parallel; a failed model resolves to data:null
-// so one bad model never blanks the view.
+// so one bad model never blanks the view. `ci` is the model's fixed colour slot
+// — carried on the series so filtering the list cannot recolour what remains.
 export async function fetchAllModels({ lat, lon, days = 7 }) {
   return Promise.all(
-    COMPARE_MODELS.map(async (m) => {
+    COMPARE_MODELS.map(async (m, ci) => {
       try {
         const data = await fetchForecast({ lat, lon, model: m.model, days });
-        return { key: m.key, label: m.label, data };
+        return { key: m.key, label: m.label, ci, data };
       } catch {
-        return { key: m.key, label: m.label, data: null };
+        return { key: m.key, label: m.label, ci, data: null };
       }
     })
   );
+}
+
+// Pure: drop the models switched off in settings.compareHidden, preserving order.
+export function visibleModels(series, hidden) {
+  if (!Array.isArray(hidden) || !hidden.length) return series;
+  return series.filter((s) => !hidden.includes(s.key));
 }

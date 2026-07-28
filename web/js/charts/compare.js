@@ -81,8 +81,15 @@ export function overlayChart(series, opts = {}) {
   const L = 26, R = 8, B = 22, TOP = 8;
   const plotW = W - L - R, plotH = H - B - TOP;
   const active = series.filter((s) => Array.isArray(s.speed) && s.speed.length);
-  const maxLen = Math.max(1, ...active.map((s) => s.times.length));
-  const labelTimes = (active.find((s) => s.times.length === maxLen) || {}).times || [];
+  // opts.times pins the axis explicitly. Without it the domain is derived from
+  // the longest series — which does not exist when every model is switched off,
+  // leaving the measured curve with nothing to map against.
+  const activeMax = Math.max(1, ...active.map((s) => s.times.length));
+  const labelTimes = opts.times
+    ?? ((active.find((s) => s.times.length === activeMax) || {}).times || []);
+  // The x-scale must span the axis too: with no series activeMax is 1, which
+  // would collapse every hour label onto the left edge.
+  const maxLen = Math.max(activeMax, labelTimes.length);
   const allSpeeds = active.flatMap((s) => s.speed).filter((v) => v != null);
   // Same timestamp mapping as the meteogram: observations are irregular
   // 10-minute samples and cannot be placed by array index. Filtered before
@@ -108,7 +115,9 @@ export function overlayChart(series, opts = {}) {
     s += `<text class="mg-axis" x="${L - 4}" y="${f(y(v) + 4)}" text-anchor="end">${v}</text>`;
   }
   active.forEach((ser) => {
-    const idx = series.indexOf(ser);
+    // Colour is the model's own slot, not its position here: a hidden model
+    // above it must not shift it down the palette.
+    const idx = ser.ci ?? series.indexOf(ser);
     let d = "", pen = false;
     ser.speed.forEach((v, i) => {
       if (v == null) { pen = false; return; }
