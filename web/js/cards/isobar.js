@@ -84,17 +84,24 @@ function openIsobarZoom(state, onChange) {
   paint();
 
   const close = () => { host.remove(); onChange(); };
-  host.querySelector(".isobar-zoom-close").addEventListener("click", close);
 
-  // Pinch-zoom on iOS is visual-viewport zoom and leaves scrollWidth untouched,
-  // so the viewport scale is the check that works there; the scrollWidth
-  // comparison covers an image overflowing its container.
-  const isZoomed = () => (window.visualViewport?.scale ?? 1) > 1.01
-    || body.scrollWidth > body.clientWidth + 1;
+  // Pinch-zoom is visual-viewport zoom on both iOS and Android, so the viewport
+  // scale is what actually distinguishes "user zoomed in" from "chart is simply
+  // wider than the screen" — which is the normal state here, since the charts are
+  // ~891px wide and the image is deliberately not shrunk to fit.
+  const isZoomed = () => (window.visualViewport?.scale ?? 1) > 1.01;
 
   let sx = 0, sy = 0, down = false, moved = false;
+
+  // Guarded the same way the backdrop tap is: a swipe that ends with the
+  // pointer over the ✕ must pan/step, not dismiss the view.
+  host.querySelector(".isobar-zoom-close").addEventListener("click", () => {
+    if (moved) { moved = false; return; }
+    close();
+  });
   body.addEventListener("pointerdown", (e) => {
     down = true; moved = false; sx = e.clientX; sy = e.clientY;
+    try { body.setPointerCapture(e.pointerId); } catch { /* older browsers */ }
   });
   body.addEventListener("pointermove", (e) => {
     if (down && Math.hypot(e.clientX - sx, e.clientY - sy) > 8) moved = true;
@@ -107,7 +114,7 @@ function openIsobarZoom(state, onChange) {
     state.idx = stepIdx(state.idx, n, act === "next" ? 1 : -1);
     paint();
   });
-  body.addEventListener("pointercancel", () => { down = false; });
+  body.addEventListener("pointercancel", () => { down = false; moved = false; });
 
   // Tap-on-backdrop still closes, but a swipe must not: a drag fires a click
   // too, and without the `moved` guard every swipe would dismiss the view.
