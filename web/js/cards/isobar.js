@@ -49,22 +49,71 @@ function bodyHTML(state) {
   return header(state) + img + stepper;
 }
 
-// Fullscreen enlarged view of the current chart (scroll/pinch-zoom on mobile).
-function openIsobarZoom(src, alt) {
+// Fullscreen enlarged chart. Pinch-zoom stays the browser's; a horizontal
+// swipe steps to the previous/next chart, but only while unzoomed. state.idx
+// is shared with the card, and onChange() on close leaves the card showing
+// whatever you swiped to.
+function openIsobarZoom(state, onChange) {
+  const { lang } = state.settings;
+  const n = state.steps.length;
+
   const host = document.createElement("div");
   host.className = "isobar-zoom";
-  host.innerHTML = `<button class="isobar-zoom-close" type="button" aria-label="✕">✕</button>` +
+  host.innerHTML =
+    `<div class="isobar-zoom-head">` +
+      `<span class="isobar-zoom-label"></span>` +
+      `<button class="isobar-zoom-close" type="button" aria-label="${t(lang, "close")}">✕</button>` +
+    `</div>` +
     `<div class="isobar-zoom-body"></div>`;
+
+  const body = host.querySelector(".isobar-zoom-body");
+  const label = host.querySelector(".isobar-zoom-label");
   const img = document.createElement("img");
   img.className = "isobar-zoom-img";
-  img.src = src;
-  img.alt = alt;
-  host.querySelector(".isobar-zoom-body").appendChild(img);
+  img.alt = t(lang, "isobar_title");
+  body.appendChild(img);
   document.body.appendChild(host);
-  const close = () => host.remove();
+
+  const paint = () => {
+    const step = state.steps[state.idx];
+    img.src = chartURL(state, step);
+    label.textContent = chartStepLabel(state.run, step, lang);
+    // Warm both neighbours so a swipe never lands on a blank frame.
+    for (const d of [-1, 1]) new Image().src = chartURL(state, state.steps[stepIdx(state.idx, n, d)]);
+  };
+  paint();
+
+  const close = () => { host.remove(); onChange(); };
   host.querySelector(".isobar-zoom-close").addEventListener("click", close);
+
+  // Pinch-zoom on iOS is visual-viewport zoom and leaves scrollWidth untouched,
+  // so the viewport scale is the check that works there; the scrollWidth
+  // comparison covers an image overflowing its container.
+  const isZoomed = () => (window.visualViewport?.scale ?? 1) > 1.01
+    || body.scrollWidth > body.clientWidth + 1;
+
+  let sx = 0, sy = 0, down = false, moved = false;
+  body.addEventListener("pointerdown", (e) => {
+    down = true; moved = false; sx = e.clientX; sy = e.clientY;
+  });
+  body.addEventListener("pointermove", (e) => {
+    if (down && Math.hypot(e.clientX - sx, e.clientY - sy) > 8) moved = true;
+  });
+  body.addEventListener("pointerup", (e) => {
+    if (!down) return;
+    down = false;
+    const act = swipeAction(e.clientX - sx, e.clientY - sy, isZoomed());
+    if (!act) return;
+    state.idx = stepIdx(state.idx, n, act === "next" ? 1 : -1);
+    paint();
+  });
+  body.addEventListener("pointercancel", () => { down = false; });
+
+  // Tap-on-backdrop still closes, but a swipe must not: a drag fires a click
+  // too, and without the `moved` guard every swipe would dismiss the view.
   host.addEventListener("click", (e) => {
-    if (e.target === host || e.target.classList.contains("isobar-zoom-body")) close();
+    if (moved) { moved = false; return; }
+    if (e.target === host || e.target === body) close();
   });
 }
 
@@ -93,7 +142,7 @@ function renderBody(state) {
     });
   });
   const img = card.querySelector(".isobar-img");
-  if (img) img.addEventListener("click", () => openIsobarZoom(img.src, img.alt));
+  if (img) img.addEventListener("click", () => openIsobarZoom(state, () => renderBody(state)));
 }
 
 export async function renderIsobar(state) {
