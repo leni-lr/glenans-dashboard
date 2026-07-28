@@ -54,5 +54,7 @@
 .mp-item--on { color: var(--accent); font-weight: 600; }
 
 /* the toggle sheet opens from inside the comparator (z-index 50) and must
-   clear it, and the enlarged isobar chart (70) */
-.set-modal--over { z-index: 80; }
+   clear it, and the enlarged isobar chart (70). The compound selector
+   raises specificity above plain .set-modal so this wins regardless of
+   stylesheet load order. */
+.set-modal.set-modal--over { z-index: 80; }

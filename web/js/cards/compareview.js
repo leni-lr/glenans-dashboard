@@ -99,7 +99,7 @@ export async function openCompareView(settings) {
   host.innerHTML = `<div class="cmp-panel">` +
     `<div class="cmp-head"><span class="cmp-title">${t(lang, "compare_title")}</span>` +
     `<span class="cmp-head-actions">` +
-      `<button class="linkbtn" data-act="models" type="button">${modelsLabel(lang, settings.compareHidden)}</button> ` +
+      `<button class="linkbtn" data-act="models" type="button">${modelsLabel(lang, settings.compareHidden)}</button>` +
       `<button class="linkbtn" data-act="close" aria-label="${t(lang, "close")}">✕</button>` +
     `</span></div>` +
     tabs(lang, range) +
