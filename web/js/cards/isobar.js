@@ -14,9 +14,10 @@ export function chartURL(state, step) {
   return `${WORKER_URL}/api/chart?step=${step}&variant=${state.variant}&run=${state.run}`;
 }
 
-// Pure: move an index by dir over n steps, wrapping at both ends.
+// Pure: move an index by dir over n steps, stopping at both ends. The run is a
+// timeline, not a carousel: stepping back from T+0 must not jump to +84 h.
 export function stepIdx(idx, n, dir) {
-  return (idx + dir + n) % n;
+  return Math.max(0, Math.min(idx + dir, n - 1));
 }
 
 // Pure: what a drag in the enlarged view means. Null unless it is a decisive

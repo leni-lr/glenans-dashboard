@@ -9,11 +9,16 @@ test("chartURL pins step, variant and run", () => {
     `${WORKER_URL}/api/chart?step=24&variant=bw&run=2026-07-27T0000`);
 });
 
-test("stepIdx wraps at both ends", () => {
+test("stepIdx stops at both ends instead of wrapping", () => {
   assert.equal(stepIdx(0, 8, 1), 1);
-  assert.equal(stepIdx(7, 8, 1), 0, "past the last step wraps to the first");
-  assert.equal(stepIdx(0, 8, -1), 7, "before the first wraps to the last");
   assert.equal(stepIdx(3, 8, -1), 2);
+  assert.equal(stepIdx(7, 8, 1), 7, "past the last step stays on the last");
+  assert.equal(stepIdx(0, 8, -1), 0, "before the first stays on the first");
+});
+
+test("stepIdx clamps on a single-step manifest", () => {
+  assert.equal(stepIdx(0, 1, 1), 0);
+  assert.equal(stepIdx(0, 1, -1), 0);
 });
 
 test("swipeAction reads a decisive horizontal drag", () => {
