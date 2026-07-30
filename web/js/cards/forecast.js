@@ -30,7 +30,7 @@ export function forecastTitleRow(lang, { chip, range }) {
     `</span></div>`;
 }
 
-// Pure: the legend line under the chart. The `réel` key appears only when the
+// Pure: the legend line under the chart. The `observé` key appears only when the
 // measured curve was actually drawn.
 export function legendHTML(lang, { observed = false } = {}) {
   return `<div class="mg-legend">` +

@@ -79,7 +79,7 @@ export const DICT = {
   legend_mean: { fr: "vent",       en: "wind" },
   legend_gust: { fr: "rafales",    en: "gusts" },
   legend_now:  { fr: "maintenant", en: "now" },
-  legend_observed: { fr: "réel", en: "real" },
+  legend_observed: { fr: "observé", en: "observed" },
 };
 
 export function t(lang, key) {

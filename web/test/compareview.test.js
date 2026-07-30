@@ -39,11 +39,11 @@ test("legend appends the measured-wind key only when observed is true", () => {
 
   const with_ = legend([{ key: "a", label: "A", ci: 0 }], "fr", true);
   assert.match(with_, /cmp-swatch--obs/);
-  assert.match(with_, /réel/);
+  assert.match(with_, /observé/);
 });
 
 test("legend translates the measured-wind key", () => {
-  assert.ok(legend([], "en", true).includes("real"));
+  assert.ok(legend([], "en", true).includes("observed"));
 });
 
 test("modelsLabel returns the bare label when nothing is hidden", () => {

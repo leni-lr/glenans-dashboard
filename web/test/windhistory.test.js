@@ -125,12 +125,12 @@ test("legendHTML shows the observed key only when a curve was drawn", () => {
   assert.ok(without.includes("maintenant"));
 
   const with_ = legendHTML("fr", { observed: true });
-  assert.match(with_, /class="leg-obs">━<\/span> réel/);
-  assert.ok(with_.indexOf("leg-obs") < with_.indexOf("leg-now"), "réel sits before maintenant");
+  assert.match(with_, /class="leg-obs">━<\/span> observé/);
+  assert.ok(with_.indexOf("leg-obs") < with_.indexOf("leg-now"), "observé sits before maintenant");
 });
 
 test("legendHTML translates the observed key", () => {
-  assert.ok(legendHTML("en", { observed: true }).includes("real"));
+  assert.ok(legendHTML("en", { observed: true }).includes("observed"));
 });
 
 test("forecastTitleRow offers demain, not 7 j", () => {
